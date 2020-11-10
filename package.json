@@ -1,0 +1,70 @@
+{
+    "name": "third",
+    "version": "0.0.17",
+    "private": true,
+    "main": "app/main.js",
+    "author": "erriy <erriy@msn.com>",
+    "build": {
+        "appId": "com.github.erriy.third",
+        "productName": "third",
+        "artifactName": "${productName}-${version}_${os}_${arch}.${ext}",
+        "linux": {
+            "target": [
+                "AppImage",
+                "pacman"
+            ]
+        },
+        "win": {
+            "target": [
+                "nsis"
+            ]
+        },
+        "mac": {
+            "target": {
+                "arch": [
+                    "x64"
+                ],
+                "target": "dmg"
+            }
+        },
+        "nsis": {
+            "oneClick": true,
+            "perMachine": true,
+            "runAfterFinish": true
+        },
+        "files": [
+            "dist/css",
+            "dist/fonts",
+            "dist/img",
+            "dist/js",
+            "dist/index.html",
+            "dist/favicon.ico",
+            "app"
+        ]
+    },
+    "scripts": {
+        "vue:serve": "vue-cli-service serve",
+        "vue:build": "vue-cli-service build",
+        "electron:serve": "cross-env DEBUG=true electron .",
+        "electron:build": "electron-builder",
+        "build": "vue-cli-service build && electron-builder",
+        "publish": "node publish.js"
+    },
+    "dependencies": {
+        "ant-design-vue": "^1.7.2",
+        "electron-log": "^4.3.1",
+        "electron-store": "^6.0.1",
+        "electron-updater": "^4.3.5",
+        "monaco-editor": "^0.21.3",
+        "vue": "^2.6.11",
+        "vue-router": "^3.2.0"
+    },
+    "devDependencies": {
+        "@vue/cli-plugin-router": "~4.5.0",
+        "@vue/cli-service": "~4.5.0",
+        "cross-env": "^7.0.3",
+        "electron": "^11.2.0",
+        "electron-builder": "^22.9.1",
+        "vue-template-compiler": "^2.6.11"
+    }
+}
