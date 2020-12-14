@@ -6,8 +6,9 @@
 
 ## 相关链接
 
-- 演示demo服务地址：[112.126.62.35](http://112.126.62.35/)
+- api测试服务器地址：[112.126.62.35](http://112.126.62.35/)(仅供测试，不保证数据安全性）
 - 服务端：[third.server-python](https://github.com/Erriy/third.server-python)
+- 客户端：[third.client-electron](https://github.com/Erriy/third.client-electron)
 - vue 演示前端：[third.frontend-vue](https://github.com/Erriy/third.frontend-vue)
 
 ## 杂谈
