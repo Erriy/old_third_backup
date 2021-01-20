@@ -25,6 +25,7 @@ function auto_check_update() {
 
 
 function tray_init() {
+    // fixme: tray加载失败
     obj.tray = new Tray(path.join(__dirname, "../dist", "favicon.ico"));
     obj.tray.setContextMenu(Menu.buildFromTemplate([
         { label: 'Item1', type: 'radio' },
