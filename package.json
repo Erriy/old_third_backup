@@ -1,6 +1,6 @@
 {
     "name": "third",
-    "version": "0.0.17",
+    "version": "0.0.2",
     "private": true,
     "main": "app/main.js",
     "author": "erriy <erriy@msn.com>",
@@ -66,5 +66,8 @@
         "electron": "^11.2.0",
         "electron-builder": "^22.9.1",
         "vue-template-compiler": "^2.6.11"
+    },
+    "vue": {
+        "publicPath": ""
     }
 }

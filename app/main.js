@@ -5,6 +5,7 @@ const {
 const log = require('electron-log');
 const api = require('./api');
 const window = require('./modules/window');
+const update = require('./modules/update');
 
 
 function regist_global_shortcut() {
@@ -31,6 +32,7 @@ else {
         let __start = new Date();
         api.initialize();
         window.create();
+        update.check();
         let __end = new Date();
         log.info(`app初始化完成, 耗时 ${(__end - __start)/1000} s`);
     });
