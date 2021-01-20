@@ -39,8 +39,9 @@ async function restart({
     let app = express();
     app.use(body_parser.json());
 
-    // 创建seed
+    // todo 路由使用单独文件
     app.put('/api/seed', async (req, res)=>{
+        // todo 创建seed
         const session = njdrv.session();
         const result = await session.run(
             'match (n) return n'
@@ -48,9 +49,13 @@ async function restart({
         res.send(result.records.map(x=>(x.toObject())));
     });
 
-    // 查找seed
     app.get('/api/seed', async(req, res)=>{
+        // todo 查找seed
+    });
 
+    app.delete('/api/seed/:seedid', async(req, res)=>{
+        // todo 删除seed
+        // res.send(req.params.seedid);
     });
 
     obj.server = app.listen(service.port||6952, service.host||"127.0.0.1");
