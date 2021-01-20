@@ -39,12 +39,12 @@ else {
     app.on('ready', async()=>{
         let __start = new Date();
         window.create();
-        log.info(`app窗口创建完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
+        log.info(`主窗口创建完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
         api.initialize();
-        log.info(`api初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
-        log.info(`app初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
+        log.info(`api模组初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
         update.check();
         auto_check_update();
+        log.info(`app初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
     });
     // 窗口全部关闭也不退出
     app.on('window-all-closed', e => e.preventDefault() );
