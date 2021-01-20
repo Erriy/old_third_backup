@@ -2,6 +2,7 @@ const {
     BrowserWindow,
     Menu
 } = require('electron');
+const sys_path = require('path');
 
 
 let obj = {
@@ -47,7 +48,7 @@ function create(path='') {
     }
     else {
         // 在窗口内要展示的内容为 ./dist/index.html，即打包生成的index.html
-        win.loadURL(`file://${__dirname}/../../dist/index.html#${path}`);
+        win.loadURL(`file://${sys_path.join(__dirname, '../../dist/index.html')}#${path}`);
     }
 }
 

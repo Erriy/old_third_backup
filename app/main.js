@@ -1,18 +1,35 @@
 const {
     app,
     globalShortcut,
+    Tray,
+    Menu,
 } = require('electron');
 const log = require('electron-log');
+const path = require('path');
 const schedule = require('node-schedule');
 const api = require('./api');
 const window = require('./modules/window');
 const update = require('./modules/update');
 
 
+let obj = {
+    tray: null,
+};
+
+
 function auto_check_update() {
     schedule.scheduleJob('* * */3 * * *', ()=>{
         update.check();
     });
+}
+
+
+function tray_init() {
+    obj.tray = new Tray(path.join(__dirname, "../dist", "favicon.ico"));
+    obj.tray.setContextMenu(Menu.buildFromTemplate([
+        { label: 'Item1', type: 'radio' },
+        { label: 'Item2', type: 'radio' }
+    ]));
 }
 
 
@@ -42,6 +59,7 @@ else {
         log.info(`主窗口创建完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
         api.initialize();
         log.info(`api模组初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
+        tray_init();
         update.check();
         auto_check_update();
         log.info(`app初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
