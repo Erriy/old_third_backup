@@ -10,6 +10,7 @@ const schedule = require('node-schedule');
 const api = require('./api');
 const window = require('./modules/window');
 const update = require('./modules/update');
+const service = require('./service');
 
 
 let obj = {
@@ -60,9 +61,14 @@ else {
         log.info(`主窗口创建完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
         api.initialize();
         log.info(`api模组初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
-        tray_init();
+        service.restart({
+            neo4j: {
+                password: "ub1JOnQcuV^rfBsr5%Ek"
+            }
+        });
         update.check();
         auto_check_update();
+        tray_init();
         log.info(`app初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
     });
     // 窗口全部关闭也不退出
