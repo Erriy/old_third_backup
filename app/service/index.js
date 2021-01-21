@@ -1,7 +1,8 @@
 const express = require('express');
 const body_parser = require('body-parser');
 const neo4j_driver = require('neo4j-driver');
-const seed_router = require('./seed');
+const log = require('electron-log');
+const {router: seed_router} = require('./seed');
 
 
 let obj = {
@@ -53,7 +54,15 @@ async function restart({
     });
     app.use(body_parser.json());
 
-    app.use('/api/seed', seed_router);
+    let neo4j_session = njdrv.session();
+    app.use('/api/seed', seed_router(neo4j_session));
+    neo4j_session.close();
+
+    app.use((err, req, res, next)=>{
+        log.error(err.stack);
+        res.status(500).send("server error");
+        next(err);
+    });
 
     obj.server = app.listen(service.port||6952, service.host||"127.0.0.1");
 }

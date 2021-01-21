@@ -6,7 +6,7 @@
 ``` json
 {
     "meta": {
-        "seedid": "", # uuid
+        "id": "", # uuid
         "time": {
             "update": {
                 "timestamp": 111111 # 更新时间戳
