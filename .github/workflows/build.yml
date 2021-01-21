@@ -51,4 +51,4 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: notify with bark
-        run: curl -v "https://api.day.app/${{ secrets.barkid }}/third action-${GITHUB_REF##*/}\[$GITHUB_RUN_ID\] 结束/点击跳转到releases页面?url=https://github.com/Erriy/third/releases"
+        run: curl -v "https://api.day.app/${{ secrets.barkid }}/third action-${GITHUB_REF##*/}\[$GITHUB_RUN_ID\] 结束/点击跳转到releases页面?url=https://github.com/Erriy/third/releases/tag/${GITHUB_REF##*/}"
