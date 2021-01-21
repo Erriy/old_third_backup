@@ -1,7 +1,12 @@
 # third
 
-## seed 格式
+## 软件简介
 
+> 略，稍后进行补充
+
+## 软件逻辑简介
+
+### seed 格式
 
 ``` json
 {
@@ -17,26 +22,36 @@
 }
 ```
 
+## 代码使用方法
 
-## Project setup
-```
+### 安装环境
+
+``` shell
 npm install
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
+### 调试启动
+
+> 涉及到electron的api调用，不能使用浏览器调试
+>
+> 修改electron的窗口加载url在`app/moudles/window.js@create`中，
+>
+> - win.loadURL(`http://localhost:8080/#${path}`);
+
+``` shell
+# 启动vue调试服务
+npm run vue:serve
+# 调试启动electron，自动加载本地8080端口
+npm run electron:serve
 ```
 
-### Compiles and minifies for production
-```
+### 构建应用
+
+
+``` shell
+# 生成位置在dist目录下
 npm run build
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-
-
 
 
 ## todo
