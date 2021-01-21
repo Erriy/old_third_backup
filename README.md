@@ -1,5 +1,23 @@
 # third
 
+## seed 格式
+
+
+``` json
+{
+    "meta": {
+        "seedid": "", # uuid
+        "time": {
+            "update": {
+                "timestamp": 111111 # 更新时间戳
+            }
+        }
+    },
+    "data": "" # 字符串数据，如果是对象，需要序列化为字符串
+}
+```
+
+
 ## Project setup
 ```
 npm install
