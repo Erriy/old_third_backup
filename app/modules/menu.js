@@ -1,6 +1,7 @@
 const {
     Menu, BrowserWindow
 } = require('electron');
+const {check:check_update} = require('./update');
 
 
 function update({
@@ -68,6 +69,19 @@ function update({
                 label: '本地服务配置',
                 click() {
                     e.sender.send('config', {config: "local_service"})
+                }
+            }
+        ]
+    });
+
+    // 关于菜单栏
+    config.push({
+        label: '关于(&A)',
+        submenu: [
+            {
+                label: '检查更新',
+                click(){
+                    check_update();
                 }
             }
         ]
