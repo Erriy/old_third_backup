@@ -29,6 +29,7 @@ function create(path='') {
         // resizable: false, //禁止改变主窗口尺寸
         webPreferences: {
             nodeIntegration: true,
+            contextisolation: false,
         },
     });
     win.setMenu(Menu.buildFromTemplate([{
