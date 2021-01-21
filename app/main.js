@@ -42,6 +42,10 @@ function tray_init() {
             }
         },
     ]));
+    obj.tray.on('double-click', ()=>{
+        let wl = window.list();
+        wl.length > 0 ? wl.pop().show() : window.create();
+    });
 }
 
 
