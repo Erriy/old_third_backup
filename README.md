@@ -31,7 +31,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 ### 2020.01.21
 
 - [ ] seed 接口
-- [ ] tray设置
+- [x] tray设置
 
 ### 2020.01.22
 
