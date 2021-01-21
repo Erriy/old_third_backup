@@ -3,6 +3,7 @@ const {
     globalShortcut,
     Tray,
     Menu,
+    nativeImage,
 } = require('electron');
 const log = require('electron-log');
 const path = require('path');
@@ -19,18 +20,27 @@ let obj = {
 
 
 function auto_check_update() {
-    schedule.scheduleJob('* * */3 * * *', ()=>{
+    schedule.scheduleJob('0 0 */3 * * *', ()=>{
         update.check();
     });
 }
 
 
 function tray_init() {
-    // fixme: tray加载失败
-    obj.tray = new Tray(path.join(__dirname, "../dist", "favicon.ico"));
+    obj.tray = new Tray(nativeImage.createFromPath(path.join(__dirname, "../dist/favicon.ico")));
     obj.tray.setContextMenu(Menu.buildFromTemplate([
-        { label: 'Item1', type: 'radio' },
-        { label: 'Item2', type: 'radio' }
+        {
+            label: '新建窗口',
+            click() {
+                window.create();
+            }
+        },
+        {
+            label: '退出',
+            click(){
+                app.exit();
+            }
+        },
     ]));
 }
 
