@@ -1,6 +1,7 @@
 const express = require('express');
 const body_parser = require('body-parser');
 const neo4j_driver = require('neo4j-driver');
+const seed_router = require('./seed');
 
 
 let obj = {
@@ -52,24 +53,7 @@ async function restart({
     });
     app.use(body_parser.json());
 
-    // todo 路由使用单独文件
-    app.put('/api/seed', async (req, res)=>{
-        // todo 创建seed
-        const result = await res.neo.run(
-            'match (n) return n'
-        );
-        res.send(result.records.map(x=>(x.toObject())));
-    });
-
-    app.get('/api/seed', async(req, res)=>{
-        // todo 查找seed
-        res.end();
-    });
-
-    app.delete('/api/seed/:seedid', async(req, res)=>{
-        // todo 删除seed
-        res.send(req.params.seedid);
-    });
+    app.use('/api/seed', seed_router);
 
     obj.server = app.listen(service.port||6952, service.host||"127.0.0.1");
 }
