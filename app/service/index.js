@@ -37,13 +37,25 @@ async function restart({
     );
     obj.neo = njdrv;
     let app = express();
+    app.use((req, res, next)=>{
+        res.neo = njdrv.session();
+        const cleanup = ()=>{
+            if(res.neo) {
+                res.neo.close();
+                res.neo = null;
+            }
+        };
+        res.on('close', cleanup);
+        res.on('finish', cleanup);
+        res.on('end', cleanup);
+        next();
+    });
     app.use(body_parser.json());
 
     // todo 路由使用单独文件
     app.put('/api/seed', async (req, res)=>{
         // todo 创建seed
-        const session = njdrv.session();
-        const result = await session.run(
+        const result = await res.neo.run(
             'match (n) return n'
         );
         res.send(result.records.map(x=>(x.toObject())));
@@ -51,11 +63,12 @@ async function restart({
 
     app.get('/api/seed', async(req, res)=>{
         // todo 查找seed
+        res.end();
     });
 
     app.delete('/api/seed/:seedid', async(req, res)=>{
         // todo 删除seed
-        // res.send(req.params.seedid);
+        res.send(req.params.seedid);
     });
 
     obj.server = app.listen(service.port||6952, service.host||"127.0.0.1");
