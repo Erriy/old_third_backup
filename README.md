@@ -75,3 +75,4 @@ npm run build
 ### 2020.01.22
 
 - [ ] 本地编辑器逻辑
+- [ ] 使用githooks
