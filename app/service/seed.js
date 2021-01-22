@@ -24,11 +24,27 @@ router.put('', async(req, res)=>{
 
 router.get('', async(req, res)=>{
     // todo 分页，排序等高级查询
+    let page = Number(req.params.page) || 1;
+    let page_size = Number(req.params.page_size) || 20;
+
+    page = page>0?page:1;
+    page_size = page_size>0?page_size:20;
+
     let cql = `
-        match (s:seed) return s
+        match (s:seed)
+        with count(s) as total
+        match (s:seed)
+        return distinct s, total order by s.update_ts desc skip ${(page-1)*page_size} limit ${page_size}
     `;
     let result = await res.neo.run(cql);
-    res.send(result.records.map(s=>(loads(s.get('s').properties.block))));
+    let total = 0;
+    if(result.records.length > 0) {
+        total = Number(result.records[0].get('total'));
+    }
+    res.send({
+        total,
+        list: result.records.map(s=>(loads(s.get('s').properties.block)))
+    });
 })
 
 
