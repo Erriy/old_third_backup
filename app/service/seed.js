@@ -25,8 +25,8 @@ router.put('', async(req, res)=>{
 router.get('', async(req, res)=>{
     // todo 支持全文查找
     // todo 增加时间筛选过滤条件
-    let page = Number(req.params.page) || 1;
-    let page_size = Number(req.params.page_size) || 20;
+    let page = Number(req.query.page) || 1;
+    let page_size = Number(req.query.page_size) || 20;
 
     page = page>0?page:1;
     page_size = page_size>0?page_size:20;
@@ -37,6 +37,7 @@ router.get('', async(req, res)=>{
         match (s:seed)
         return distinct s, total order by s.update_ts desc skip ${(page-1)*page_size} limit ${page_size}
     `;
+
     let result = await res.neo.run(cql);
     let total = 0;
     if(result.records.length > 0) {
