@@ -4,11 +4,13 @@ import router from './router';
 import api from './api';
 import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/antd.css';
+import ScrollLoader from 'vue-scroll-loader';
 
 
 Vue.config.productionTip = false;
 Vue.use(api);
 Vue.use(Antd);
+Vue.use(ScrollLoader);
 
 
 Vue.prototype.$common = {

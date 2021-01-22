@@ -80,7 +80,17 @@ export default {
         this.$api.menu.update({seed: {delete: 'show'}});
 
         let content = '';
-        this.new_seed();
+        if(this.$route.query.id) {
+            let seed = sessionStorage[this.$route.query.id];
+            if(typeof(seed) == 'string' && seed.length > 0) {
+                seed = JSON.parse(seed);
+                this.seed.id = seed.meta.id;
+                content = seed.data;
+            }
+        }
+        else {
+            this.new_seed();
+        }
         this.vditor = new Vditor('vditor', {
             mode: 'ir',
             toolbar: [],

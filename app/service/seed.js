@@ -23,7 +23,8 @@ router.put('', async(req, res)=>{
 
 
 router.get('', async(req, res)=>{
-    // todo 分页，排序等高级查询
+    // todo 支持全文查找
+    // todo 增加时间筛选过滤条件
     let page = Number(req.params.page) || 1;
     let page_size = Number(req.params.page_size) || 20;
 
