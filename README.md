@@ -63,7 +63,7 @@ npm run build
 
 ### 2020.01.21
 
-- [ ] seed 接口
+- [x] seed 接口
 - [x] tray设置
 
 ### 2020.01.22
