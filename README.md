@@ -62,6 +62,10 @@ npm run build
 
 ## todo
 
+- [ ] git-hooks
+  - [ ] eslint 语法检查
+  - [ ] 提交时修改版本则自动发布
+
 ### 2020.01.20
 
 - [x] 自动更新
