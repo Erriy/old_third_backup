@@ -64,7 +64,7 @@ npm run build
 
 - [ ] git-hooks
   - [ ] eslint 语法检查
-  - [ ] 提交时修改版本则自动发布
+  - [x] 提交时修改版本则自动发布
   - [ ] commit message 规范
 
 ### 2020.01.20
