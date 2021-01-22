@@ -51,7 +51,11 @@ router.get('', async(req, res)=>{
 
 
 router.delete('/:seedid', async(req, res)=>{
-    res.send(req.params.seedid);
+    let cql = `
+        match (s:seed) where s.seedid='${req.params.seedid}' detach delete s
+    `
+    await res.neo.run(cql);
+    return res.build();
 });
 
 

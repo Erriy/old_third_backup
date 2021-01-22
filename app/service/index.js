@@ -10,6 +10,8 @@ let obj = {
     neo: null,
 };
 
+// fixme 所有输入数据格式检查，防止注入
+
 
 async function restart({
     service={
@@ -79,6 +81,7 @@ async function restart({
 
     // 错误统一处理
     app.use((err, req, res, next)=>{
+        log.error(err.stack);
         res.build({code: 500, message: '服务器错误'});
         next(err);
     });
