@@ -18,7 +18,7 @@ router.put('', async(req, res)=>{
             s.block='${dumps(s)}'
     `;
     await res.neo.run(cql);
-    res.end();
+    return res.build();
 });
 
 
@@ -41,9 +41,11 @@ router.get('', async(req, res)=>{
     if(result.records.length > 0) {
         total = Number(result.records[0].get('total'));
     }
-    res.send({
-        total,
-        list: result.records.map(s=>(loads(s.get('s').properties.block)))
+    return res.build({
+        data: {
+            total,
+            list: result.records.map(s=>(loads(s.get('s').properties.block)))
+        }
     });
 })
 
