@@ -74,9 +74,13 @@
         "cross-env": "^7.0.3",
         "electron": "^11.2.0",
         "electron-builder": "^22.9.1",
-        "vue-template-compiler": "^2.6.11"
+        "vue-template-compiler": "^2.6.11",
+        "yorkie": "^2.0.0"
     },
     "vue": {
         "publicPath": ""
+    },
+    "gitHooks": {
+        "post-commit": "npm run publish"
     }
 }
