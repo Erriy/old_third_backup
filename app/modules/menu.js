@@ -4,12 +4,80 @@ const {
 const {check:check_update} = require('./update');
 
 
+function isenabled(i) {
+    if(i && typeof(i) === 'string') {
+        return -1 === i.indexOf('disable');
+    }
+    else {
+        return true;
+    }
+}
+
+
+function isvisible(i) {
+    if(i && typeof(i) === 'string') {
+        return -1 !== i.indexOf('show');
+    }
+    else {
+        return false;
+    }
+}
+
+
+function ischecked(i, value) {
+    if(i && typeof(i) === 'string') {
+        return -1 !== i.indexOf(value);
+    }
+    else {
+        return false;
+    }
+}
+
+
 function update({
+    seed='',
     file=false,
 }={}) {
     let e = arguments[arguments.length - 1];
     let win = BrowserWindow.fromWebContents(e.sender);
     let config = [];
+
+    // 种子菜单栏
+    config.push({
+        label: '种子(&S)',
+        submenu: [
+            {
+                label: '新建',
+                accelerator: 'CmdOrCtrl+n',
+                click() {
+                    e.sender.send('seed', {new: true})
+                }
+            },
+            {
+                label: '列表',
+                accelerator: 'CmdOrCtrl+l',
+                enabled: isenabled(seed.list),
+                click() {
+                    e.sender.send('seed', {list: true})
+                }
+            },
+            {
+                label: '保存',
+                accelerator: 'CmdOrCtrl+s',
+                click() {
+                    e.sender.send('seed', {save: true})
+                }
+            },
+            {
+                label: '删除',
+                accelerator: 'CmdOrCtrl+d',
+                visible: isvisible(seed.delete),
+                click() {
+                    e.sender.send('seed', {delete: true})
+                }
+            }
+        ]
+    });
 
     // 文件菜单栏
     if(file){
@@ -64,7 +132,7 @@ function update({
 
     // 服务器菜单栏
     config.push({
-        label: '服务器(&S)',
+        label: '服务器(&E)',
         submenu: [
             {
                 label: '本机服务',

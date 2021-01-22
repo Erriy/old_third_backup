@@ -12,6 +12,7 @@ Vue.use(Antd);
 
 
 Vue.prototype.$common = {
+    service: 'http://localhost:6952',
     title: {
         __tmp: {
             change: false,

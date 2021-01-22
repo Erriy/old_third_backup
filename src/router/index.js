@@ -13,6 +13,18 @@ const routes = [
         component: list
     },
     {
+        path: '/list',
+        name: 'list',
+        component: list
+    },
+    {
+        path: '/seed',
+        name: 'seed',
+        component() {
+            return import('../views/seed.vue');
+        }
+    },
+    {
         path: '/config',
         name: 'config',
         component(){
