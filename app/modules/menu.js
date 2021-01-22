@@ -62,15 +62,34 @@ function update({
         ]
     });
 
+    // 服务器菜单栏
     config.push({
-        label: '配置(&C)',
+        label: '服务器(&S)',
         submenu: [
             {
-                label: '本地服务配置',
-                click() {
-                    e.sender.send('config', {config: "local_service"})
-                }
+                label: '本机服务',
+                submenu: [
+                    {
+                        label: '启动',
+                    },
+                    {
+                        label: '重启',
+                    },
+                    {
+                        label: '关闭',
+                    },
+                    {
+                        label: '配置',
+                    }
+                ]
             }
+
+            // {
+            //     label: '本地服务配置',
+            //     click() {
+            //         e.sender.send('config', {config: "local_service"})
+            //     }
+            // }
         ]
     });
 
