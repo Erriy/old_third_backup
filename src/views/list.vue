@@ -63,6 +63,10 @@ export default {
     },
     methods: {
         select_seed(s) {
+            if(this.$route.query.paste) {
+                this.$api.clipboard.paste(s.data).then(()=>{window.close();});
+                return;
+            }
             let seedid = s.meta.id;
             sessionStorage[seedid] = JSON.stringify(s);
             this.$router.push({path: '/seed', query:{id: seedid}});

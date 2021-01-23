@@ -1,6 +1,7 @@
 const {
     app,
     globalShortcut,
+    clipboard,
     Tray,
     Menu,
     nativeImage,
@@ -49,16 +50,19 @@ function tray_init() {
 }
 
 
-// function regist_global_shortcut() {
-//     // fixme：mac系统上command和super为同一按键，修改默认为option
-//     // todo 修改根据配置文件进行绑定
-//     globalShortcut.register('CommandOrControl+Super+N', () => {
-//         window.create({path: '/seed'});
-//     });
-//     globalShortcut.register('CommandOrControl+Super+L', () => {
-//         window.create({path: '/list'});
-//     });
-// }
+function regist_global_shortcut() {
+    // fixme：mac系统上command和super为同一按键，修改默认为option
+    // todo 修改根据配置文件进行绑定
+    globalShortcut.register('CommandOrControl+Super+l', () => {
+        window.create('/list');
+    });
+    globalShortcut.register('CommandOrControl+Super+V', () => {
+        window.create('/list?paste=true');
+    });
+    globalShortcut.register('CommandOrControl+Super+n', () => {
+        window.create('/seed');
+    });
+}
 
 
 if(!app.requestSingleInstanceLock()) {
@@ -67,6 +71,7 @@ if(!app.requestSingleInstanceLock()) {
 }
 else {
     app.on('second-instance', (event, commandLine, workingDirectory) => {
+        // todo 根据命令来处理打开窗口
         window.create();
     })
     app.on('ready', async()=>{
@@ -75,6 +80,7 @@ else {
         log.info(`主窗口创建完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
         api.initialize();
         log.info(`api模组初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
+        regist_global_shortcut();
         service.restart({
             neo4j: {
                 password: "ub1JOnQcuV^rfBsr5%Ek"

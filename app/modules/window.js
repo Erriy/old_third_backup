@@ -20,6 +20,7 @@ let obj = {
 // view.webContents.executeJavaScript('alert(1);');
 
 
+// todo 窗口池概念，关闭不直接销毁，留作下一次使用，保留四个窗口池，类似线程池、进程池概念
 function create(path='') {
     let win = new BrowserWindow({
         width: 1024,
@@ -59,8 +60,16 @@ function list() {
 }
 
 
+function hide() {
+    let e = arguments[arguments.length - 1];
+    let win = BrowserWindow.fromWebContents(e.sender);
+    win.hide();
+}
+
+
 module.exports = {
     create,
     list,
+    hide,
 };
 
