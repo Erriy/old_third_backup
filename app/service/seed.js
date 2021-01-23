@@ -30,16 +30,26 @@ router.get('', async(req, res)=>{
     let page = Number(req.query.page) || 1;
     let page_size = Number(req.query.page_size) || 20;
     let key = req.query.key || '';
+    let from_ts = Number(req.query.from) || -1;
+    let to_ts = Number(req.query.to) || -1;
 
     page = page>0?page:1;
     page_size = page_size>0?page_size:20;
 
+    let ts_range = [];
+    if(from_ts > 0) {
+        ts_range.push(` s.update_ts >= ${from_ts} `);
+    }
+    if(to_ts > 0) {
+        ts_range.push(` s.update_ts <= ${to_ts} `);
+    }
     let full_text_search = 'match (s:seed)';
     if(key.length > 0) {
         full_text_search = `CALL db.index.fulltext.queryNodes("seed.full_text", "${key}") YIELD node as s, score`;
     }
     let search = `
         ${full_text_search}
+        ${ts_range.length > 0 ? 'where ' + ts_range.join(' and ') : ''}
     `;
 
     let cql = `
