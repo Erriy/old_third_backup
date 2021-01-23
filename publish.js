@@ -5,6 +5,6 @@ exec(`git tag v${process.env.npm_package_version}`, (err, stdout, stderr) => {
     if(err) {
         return;
     }
-    exec('git push && git push --tags');
+    exec('git push --tags');
 });
 
