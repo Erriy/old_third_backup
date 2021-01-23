@@ -29,7 +29,6 @@ async function restart({
         await obj.neo.close();
     }
     if(obj.server) {
-        // todo close server;
         await obj.server.close()
     }
     // 重建数据库链接

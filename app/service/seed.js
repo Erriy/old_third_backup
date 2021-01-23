@@ -24,8 +24,6 @@ router.put('', async(req, res)=>{
 
 
 router.get('', async(req, res)=>{
-    // todo 支持全文查找
-    // todo 增加时间筛选过滤条件
     // fixme: 防注入
     let page = Number(req.query.page) || 1;
     let page_size = Number(req.query.page_size) || 20;
