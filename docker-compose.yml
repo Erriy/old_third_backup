@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+    neo:
+        image: neo4j:4.2.2
+        environment:
+            - NEO4J_AUTH=neo4j/ub1JOnQcuV^rfBsr5%Ek
+        volumes:
+            - ./data/neo4j:/data
+        ports:
+            - 127.0.0.1:7474:7474
+            - 127.0.0.1:7687:7687
