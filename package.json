@@ -1,6 +1,6 @@
 {
     "name": "third",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "private": true,
     "main": "app/main.js",
     "author": "erriy <erriy@msn.com>",
