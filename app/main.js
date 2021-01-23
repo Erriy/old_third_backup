@@ -32,9 +32,26 @@ function tray_init() {
     obj.tray.setContextMenu(Menu.buildFromTemplate([
         {
             label: '新建窗口',
-            click() {
-                window.create();
-            }
+            submenu: [
+                {
+                    label: '列表页',
+                    click() {
+                        window.create('/list');
+                    }
+                },
+                {
+                    label: '新信息',
+                    click() {
+                        window.create('/seed');
+                    }
+                },
+                {
+                    label: '粘贴板',
+                    click() {
+                        window.create('/list?paste=true');
+                    }
+                },
+            ]
         },
         {
             label: '退出',
