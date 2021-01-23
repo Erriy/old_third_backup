@@ -93,7 +93,7 @@ npm run build
 - [ ] 重启本地服务
 - [ ] 使用monaco-editor保存代码
 - [ ] 剪贴板管理
-- [ ] 使用neo4j-embedded
+- [ ] 使用neo4j-embedded（有必要么？）
 
 ### 2020.01.24
 
