@@ -76,7 +76,7 @@ async function restart({
 
     // 构建路由，路由内部自行建立数据库索引
     let neo4j_session = njdrv.session();
-    app.use('/api/seed', seed_router(neo4j_session));
+    app.use('/api/seed', await seed_router(neo4j_session));
     neo4j_session.close();
 
     // 错误统一处理

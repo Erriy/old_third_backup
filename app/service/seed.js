@@ -73,9 +73,9 @@ router.delete('/:seedid', async(req, res)=>{
 
 
 module.exports = {
-    router(neo4j_session) {
-        neo4j_session.run('create constraint on (n:seed) assert n.`seedid` is unique').then().catch(()=>{});
-        neo4j_session.run('call db.index.fulltext.createNodeIndex("seed.full_text", ["seed"], ["full_text"])').then().catch(()=>{});
+    async router(neo4j_session) {
+        await neo4j_session.run('create constraint on (n:seed) assert n.`seedid` is unique');
+        await neo4j_session.run('call db.index.fulltext.createNodeIndex("seed.full_text", ["seed"], ["full_text"])');
         return router;
     }
 };
