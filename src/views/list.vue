@@ -105,11 +105,8 @@ export default {
             this.load_more(true);
         },
         ipc_seed_listener(e, a) {
-            if('refresh' === a.action) {
-                this.refresh_result();
-            }
-            else if('new' === a.action) {
-                this.$router.replace('/seed');
+            if(a.new) {
+                this.$router.push('/seed');
             }
         }
     },
