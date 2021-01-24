@@ -43,6 +43,8 @@ function update({
     let win = BrowserWindow.fromWebContents(e.sender);
     let config = [];
 
+    // fixme: click 后刷新menu
+
     // 种子菜单栏
     config.push({
         label: '种子(&S)',
