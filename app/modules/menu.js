@@ -41,7 +41,7 @@ function update({
     seed=true,
     file=false,
 }={}) {
-    // fixme 动态刷新菜单栏，不重建，创建window时自动创建菜单并绑定到win上，根据菜单id进行状态切换实现动态刷新
+    // fixme 动态刷新菜单栏，不重建，创建window时自动创建菜单并绑定到win上，根据菜单id进行状态切换实现动态刷新（或维护win-menu object，win on close时删除menu对象）
     let e = arguments[arguments.length - 1];
     let win = BrowserWindow.fromWebContents(e.sender);
     let config = [];
