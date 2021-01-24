@@ -18,7 +18,7 @@ export default{
         save_config() {
             try{
                 let config_data = JSON.parse(this.editor.getValue());
-                this.$api.config.set(this.$route.query.name, config_data).then(()=>{
+                this.$api.service.set_config(config_data).then(()=>{
                     this.need_save = false;
                     this.$common.title.update({change:false});
                 });
@@ -44,8 +44,8 @@ export default{
     destroyed() {
         ipcRenderer.removeListener('file', this.ipc_file_listener);
     },
-    mounted() {
-        this.$common.title.update({filename: this.$route.query.name + '.json', pagename: 'config'});
+    async mounted() {
+        this.$common.title.update({filename: 'service.json', pagename: 'config'});
         this.$api.menu.update({file:true}).then();
         ipcRenderer.on('file', this.ipc_file_listener);
         window.onresize = ()=>{
@@ -53,7 +53,7 @@ export default{
                 this.editor.layout();
             }
         };
-        this.$api.config.get(this.$route.query.name).then((config_data)=>{
+        this.$api.service.config().then((config_data)=>{
             this.editor = monaco.editor.create(this.$refs.container, {
                 value: JSON.stringify(config_data, null, 4),
                 language: 'json',

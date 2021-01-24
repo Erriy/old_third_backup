@@ -2,6 +2,7 @@ const {
     Menu, BrowserWindow
 } = require('electron');
 const {check:check_update} = require('./update');
+const service = require('./service');
 
 
 function isenabled(i) {
@@ -135,23 +136,32 @@ function update({
         label: '服务器(&E)',
         submenu: [
             {
-                label: '本机服务',
-                submenu: [
-                    {
-                        label: '启动',
-                    },
-                    {
-                        label: '重启',
-                    },
-                    {
-                        label: '关闭',
-                    },
-                    {
-                        label: '配置',
-                    }
-                ]
+                label: '启动',
+                enabled: !service.running(),
+                click() {
+                    service.start();
+                }
+            },
+            {
+                label: '重启',
+                enabled: service.running(),
+                click() {
+                    service.start();
+                }
+            },
+            {
+                label: '关闭',
+                enabled: service.running(),
+                click() {
+                    service.stop();
+                }
+            },
+            {
+                label: '配置',
+                click() {
+                    e.sender.send('config', {config: "service"});
+                }
             }
-
             // {
             //     label: '本地服务配置',
             //     click() {

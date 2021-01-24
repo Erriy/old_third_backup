@@ -10,7 +10,7 @@ export default {
     methods: {
         ipc_config_listener(e, a) {
             if(a.config) {
-                this.$router.push({path:'/config', query: {name: a.config}});
+                this.$router.push({path:`/${a.config}_config`});
             }
         }
     },

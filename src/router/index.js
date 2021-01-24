@@ -22,9 +22,9 @@ const routes = [
         }
     },
     {
-        path: '/config',
+        path: '/service_config',
         component(){
-            return import('../views/config.vue');
+            return import('../views/service_config.vue');
         }
     }
 ];

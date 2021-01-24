@@ -12,8 +12,19 @@ let obj = {
 
 // fixme 所有输入数据格式检查，防止注入
 
+async function stop() {
+    if(obj.neo) {
+        await obj.neo.close();
+        obj.neo = null;
+    }
+    if(obj.server) {
+        await obj.server.close()
+        obj.server = null;
+    }
+}
 
-async function restart({
+
+async function start({
     service={
         host:undefined,
         port:undefined
@@ -24,13 +35,7 @@ async function restart({
         password:undefined
     }
 }={}) {
-    // 清理服务
-    if(obj.neo) {
-        await obj.neo.close();
-    }
-    if(obj.server) {
-        await obj.server.close()
-    }
+    await stop();
     // 重建数据库链接
     let njdrv = neo4j_driver.driver(
         neo4j.uri||'neo4j://127.0.0.1:7687',
@@ -89,7 +94,15 @@ async function restart({
 }
 
 
+
+function running() {
+    return Boolean(obj.server);
+}
+
+
 module.exports = {
-    restart,
+    start,
+    stop,
+    running,
 };
 

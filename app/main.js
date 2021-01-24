@@ -12,7 +12,7 @@ const schedule = require('node-schedule');
 const api = require('./api');
 const window = require('./modules/window');
 const update = require('./modules/update');
-const service = require('./service');
+const service = require('./modules/service');
 
 
 let obj = {
@@ -98,11 +98,7 @@ else {
         api.initialize();
         log.info(`api模组初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
         regist_global_shortcut();
-        service.restart({
-            neo4j: {
-                password: "ub1JOnQcuV^rfBsr5%Ek"
-            }
-        });
+        service._initialize();
         update.check();
         auto_check_update();
         tray_init();
