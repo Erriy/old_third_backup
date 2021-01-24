@@ -98,3 +98,4 @@ npm run build
 ### 2020.01.24
 
 - [ ] 服务器间同步
+- [ ] 本地配置加密存储(https://github.com/atom/node-keytar)
