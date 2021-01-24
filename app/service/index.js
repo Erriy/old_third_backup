@@ -45,6 +45,11 @@ async function start({
             neo4j.password||'neo4j'
         )
     );
+    try {
+        await njdrv.verifyConnectivity();
+    }catch(err) {
+        throw '无法正常连接数据库，请确认数据库地址与验证信息无误';
+    }
     obj.neo = njdrv;
     // 建立express实例
     let app = express();

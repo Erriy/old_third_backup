@@ -1,3 +1,4 @@
+const {dialog} = require('electron');
 const service = require('../service');
 const store = require('electron-store');
 
@@ -35,12 +36,14 @@ function reset_config() {
 
 
 async function start() {
-    await service.start({
+    service.start({
         neo4j: {
             uri: obj.config.get('neo4j.uri') || obj.default_config.neo4j.uri,
             user: obj.config.get('neo4j.auth.user') || obj.default_config.neo4j.auth.user,
             password: obj.config.get('neo4j.auth.password') || obj.default_config.neo4j.auth.password
         }
+    }).catch(err=>{dialog.showErrorBox('本地服务错误', err);
+        dialog.showErrorBox('本地服务错误', err);
     });
 }
 

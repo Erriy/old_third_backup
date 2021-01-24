@@ -1,5 +1,7 @@
 const {
-    Menu, BrowserWindow
+    Menu,
+    BrowserWindow,
+    dialog,
 } = require('electron');
 const {check:check_update} = require('./update');
 const service = require('./service');
@@ -154,8 +156,8 @@ function update({
             {
                 label: '关闭',
                 enabled: service.running(),
-                click() {
-                    service.stop();
+                async click() {
+                    await service.stop();
                 }
             },
             {
