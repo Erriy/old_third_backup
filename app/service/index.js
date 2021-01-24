@@ -37,7 +37,6 @@ async function start({
 }={}) {
     await stop();
     // 重建数据库链接
-    // fixme 密码错误提示
     let njdrv = neo4j_driver.driver(
         neo4j.uri||'neo4j://127.0.0.1:7687',
         neo4j_driver.auth.basic(
