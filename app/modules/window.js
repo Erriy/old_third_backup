@@ -19,7 +19,7 @@ let obj = {
 // 文档：https://www.electronjs.org/docs/api/web-contents
 // view.webContents.executeJavaScript('alert(1);');
 
-
+// todo 窗口分为独立窗口和通用编辑窗口两种概念，窗口进行分类，配置本地服务的窗口应该是单例模式的，文本编辑和列表应该是多例的
 // todo 窗口池概念，关闭不直接销毁，留作下一次使用，保留四个窗口池，类似线程池、进程池概念
 function create(path='') {
     let win = new BrowserWindow({
