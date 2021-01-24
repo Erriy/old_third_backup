@@ -46,7 +46,7 @@ export default{
     },
     async mounted() {
         this.$common.title.update({filename: 'service.json', pagename: 'config'});
-        this.$api.menu.update({file:true}).then();
+        this.$api.menu.update({file:true, seed: false}).then();
         ipcRenderer.on('file', this.ipc_file_listener);
         window.onresize = ()=>{
             if(this.editor) {

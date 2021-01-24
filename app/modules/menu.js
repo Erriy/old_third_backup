@@ -38,51 +38,53 @@ function ischecked(i, value) {
 
 
 function update({
-    seed='',
+    seed=true,
     file=false,
 }={}) {
+    // fixme 动态刷新菜单栏，不重建
     let e = arguments[arguments.length - 1];
     let win = BrowserWindow.fromWebContents(e.sender);
     let config = [];
-
-    // fixme: click 后刷新menu
+    let menu = null;
 
     // 种子菜单栏
-    config.push({
-        label: '种子(&S)',
-        submenu: [
-            {
-                label: '新建',
-                accelerator: 'CmdOrCtrl+n',
-                click() {
-                    e.sender.send('seed', {new: true})
+    if(seed) {
+        config.push({
+            label: '种子(&S)',
+            submenu: [
+                {
+                    label: '新建',
+                    accelerator: 'CmdOrCtrl+n',
+                    click() {
+                        e.sender.send('seed', {new: true})
+                    }
+                },
+                {
+                    label: '列表',
+                    accelerator: 'CmdOrCtrl+l',
+                    enabled: isenabled(seed.list),
+                    click() {
+                        e.sender.send('seed', {list: true})
+                    }
+                },
+                {
+                    label: '保存',
+                    accelerator: 'CmdOrCtrl+s',
+                    click() {
+                        e.sender.send('seed', {save: true})
+                    }
+                },
+                {
+                    label: '删除',
+                    accelerator: 'CmdOrCtrl+d',
+                    visible: isvisible(seed.delete),
+                    click() {
+                        e.sender.send('seed', {delete: true})
+                    }
                 }
-            },
-            {
-                label: '列表',
-                accelerator: 'CmdOrCtrl+l',
-                enabled: isenabled(seed.list),
-                click() {
-                    e.sender.send('seed', {list: true})
-                }
-            },
-            {
-                label: '保存',
-                accelerator: 'CmdOrCtrl+s',
-                click() {
-                    e.sender.send('seed', {save: true})
-                }
-            },
-            {
-                label: '删除',
-                accelerator: 'CmdOrCtrl+d',
-                visible: isvisible(seed.delete),
-                click() {
-                    e.sender.send('seed', {delete: true})
-                }
-            }
-        ]
-    });
+            ]
+        });
+    }
 
     // 文件菜单栏
     if(file){
@@ -140,24 +142,36 @@ function update({
         label: '服务器(&E)',
         submenu: [
             {
+                id: 'service.start',
                 label: '启动',
                 enabled: !service.running(),
                 click() {
                     service.start();
+                    menu.getMenuItemById('service.restart').enabled = true;
+                    menu.getMenuItemById('service.start').enabled = false;
+                    menu.getMenuItemById('service.stop').enabled = true;
                 }
             },
             {
+                id: 'service.restart',
                 label: '重启',
                 enabled: service.running(),
                 click() {
                     service.start();
+                    menu.getMenuItemById('service.restart').enabled = true;
+                    menu.getMenuItemById('service.start').enabled = false;
+                    menu.getMenuItemById('service.stop').enabled = true;
                 }
             },
             {
+                id: 'service.stop',
                 label: '关闭',
                 enabled: service.running(),
                 async click() {
                     await service.stop();
+                    menu.getMenuItemById('service.restart').enabled = false;
+                    menu.getMenuItemById('service.start').enabled = true;
+                    menu.getMenuItemById('service.stop').enabled = false;
                 }
             },
             {
@@ -187,8 +201,8 @@ function update({
             }
         ]
     });
-
-    win.setMenu(Menu.buildFromTemplate(config));
+    menu = Menu.buildFromTemplate(config);
+    win.setMenu(menu);
 }
 
 
