@@ -81,7 +81,7 @@ export default {
                 this.seed.page = 1;
                 this.seed.no_more = false;
             }
-
+            // fixme 请求错误处理
             this.$api.seed.search({
                 service: this.$common.service,
                 key: this.seed.search.key,
