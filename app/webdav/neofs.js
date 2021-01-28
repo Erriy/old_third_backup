@@ -1,6 +1,13 @@
 const webdav = require('webdav-server').v2;
 const neo4j_driver = require('neo4j-driver');
 const {dirname, basename} = require('path');
+const {Writable, Readable} = require('stream');
+
+
+
+
+const dumps = d=>(encodeURIComponent(JSON.stringify(d)).replace("'", '%27'));
+const loads = s=>(JSON.parse(decodeURIComponent(s.replace('%27', "'"))));
 
 // fixme 内容、路径防注入
 
@@ -81,7 +88,6 @@ function filesystem()
             merge (f:seed{uri: '${dirname(path.toString())}'}) with s, f
             merge (f)<-[:in]-(s)
         `).then(seeds=>{
-            console.log(seeds);
             r.resources[path.toString()] = new fs_resource();
             return callback(null);
         });
@@ -92,12 +98,39 @@ function filesystem()
     // r._delete = function(path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/) {
     //     console.log('delete');
     // }
-    // r._openWriteStream = function(path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/) {
-    //     console.log('open write stream');
-    // }
-    // r._openReadStream = function(path /* : Path*/, ctx /* : OpenReadStreamInfo*/, callback /* : ReturnCallback<Readable>*/) {
-    //     console.log('open read stream');
-    // }
+    r._openWriteStream = function(path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/) {
+        let buffers = [];
+        const wstream = new Writable({
+            // 如果别人调用，我们做什么
+            write(chunk, encoding, wcb) {
+                buffers.push(chunk);
+                wcb();
+            },
+        })
+        wstream.on('finish', ()=>{
+            let data = '';
+            if(buffers.length > 0) {
+                data = buffers.reduce((all, b)=>(all.toString() + b.toString()));
+            }
+            neo4j_run(`
+                merge (s:seed{uri: '${path.toString()}'}) set s.block='${dumps(data)}', s.type='file'
+                with s
+                merge (f:seed{uri: '${dirname(path.toString())}'}) with s, f
+                merge (f)<-[:in]-(s)
+            `).then();
+        });
+
+        callback(null, wstream);
+    }
+    r._openReadStream = function(path /* : Path*/, ctx /* : OpenReadStreamInfo*/, callback /* : ReturnCallback<Readable>*/) {
+        neo4j_run(`match (s:seed) where s.uri='${path.toString()}' return s.block`).then(seeds=>{
+            let data = loads(seeds.records[0]._fields[0]);
+            let rstream = new Readable();
+            rstream.push(Buffer.from(data, 'utf-8'));
+            rstream.push(null);
+            callback(null, rstream);
+        })
+    }
     r._move = function(pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/) {
         neo4j_run(`match (s:seed) where s.uri='${pathFrom.toString()}' set s.uri='${pathTo.toString()}'`).then(seeds=>{
             callback(null, true);
