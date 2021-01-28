@@ -4,7 +4,7 @@ const {dirname, basename} = require('path');
 const {Writable, Readable} = require('stream');
 
 
-
+// todo 判断文件类型(根据文件名和文件大小判断），如果内容特大，则保存为文件内容，而非直接保存在数据库中
 
 const dumps = d=>(encodeURIComponent(JSON.stringify(d)).replace("'", '%27'));
 const loads = s=>(JSON.parse(decodeURIComponent(s.replace('%27', "'"))));
@@ -17,11 +17,11 @@ let neo4j = neo4j_driver.driver(
 );
 
 
-async function neo4j_run(cql) {
+async function neo4j_run(...args) {
     let s = neo4j.session();
     let result = undefined;
     try{
-        result = await s.run(cql);
+        result = await s.run(...args);
     }
     finally {
         s.close();
@@ -97,7 +97,7 @@ function filesystem()
     // }
     r._delete = function(path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/) {
         // todo 顺带着删除附属文件
-        console.log(path.toString());
+        // console.log(path.toString());
         callback(null);
     }
     r._openWriteStream = function(path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/) {
@@ -115,11 +115,11 @@ function filesystem()
                 data = buffers.reduce((all, b)=>(all.toString() + b.toString()));
             }
             neo4j_run(`
-                merge (s:seed{uri: '${path.toString()}'}) set s.block='${dumps(data)}', s.type='file'
+                merge (s:seed{uri: '${path.toString()}', block: $block, type: 'file'})
                 with s
                 merge (f:seed{uri: '${dirname(path.toString())}'}) with s, f
                 merge (f)<-[:in]-(s)
-            `).then();
+            `, {block: dumps(data)}).then();
         });
 
         callback(null, wstream);
