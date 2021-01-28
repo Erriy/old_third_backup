@@ -67,7 +67,8 @@
         "vditor": "^3.7.7",
         "vue": "^2.6.11",
         "vue-router": "^3.2.0",
-        "vue-scroll-loader": "^2.2.0"
+        "vue-scroll-loader": "^2.2.0",
+        "webdav-server": "^2.6.2"
     },
     "devDependencies": {
         "@vue/cli-plugin-router": "~4.5.0",
