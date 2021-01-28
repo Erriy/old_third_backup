@@ -5,7 +5,7 @@ const {Writable, Readable} = require('stream');
 
 
 // todo 判断文件类型(根据文件名和文件大小判断），如果内容特大，则保存为文件内容，而非直接保存在数据库中
-
+// todo 使用neo4j 不实用dumps和loads
 const dumps = d=>(encodeURIComponent(JSON.stringify(d)).replace("'", '%27'));
 const loads = s=>(JSON.parse(decodeURIComponent(s.replace('%27', "'"))));
 
@@ -101,6 +101,7 @@ function filesystem()
         callback(null);
     }
     r._openWriteStream = function(path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/) {
+        // todo 先缓存数据，然后判断数据类型 ，如果为文本数据，则丢进数据库，否则存放为文件
         let buffers = [];
         const wstream = new Writable({
             // 如果别人调用，我们做什么
