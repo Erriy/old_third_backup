@@ -53,18 +53,43 @@ function filesystem(arg1, arg2)
     r.arg1 = arg1;
     r.arg2 = arg2;
 
-    // r._fastExistCheck = function(ctx /* : RequestContext*/, path /* : Path*/, callback /* : (exists : boolean*/) => void) {}
-    // r._create = function(path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/) {}
-    // r._etag = function(path /* : Path*/, ctx /* : ETagInfo*/, callback /* : ReturnCallback<string>*/) {}
-    // r._delete = function(path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/) {}
-    // r._openWriteStream = function(path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/) {}
-    // r._openReadStream = function(path /* : Path*/, ctx /* : OpenReadStreamInfo*/, callback /* : ReturnCallback<Readable>*/) {}
-    // r._move = function(pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/) {}
-    // r._copy = function(pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : CopyInfo*/, callback /* : ReturnCallback<boolean>*/) {}
-    // r._rename = function(pathFrom /* : Path*/, newName /* : string*/, ctx /* : RenameInfo*/, callback /* : ReturnCallback<boolean>*/) {}
-    // r._mimeType = function(path /* : Path*/, ctx /* : MimeTypeInfo*/, callback /* : ReturnCallback<string>*/) {}
-    // r._size = function(path /* : Path*/, ctx /* : SizeInfo*/, callback /* : ReturnCallback<number>*/) {}
-    // r._availableLocks = function(path /* : Path*/, ctx /* : AvailableLocksInfo*/, callback /* : ReturnCallback<LockKind[]>*/) {}
+    // r._fastExistCheck = function(ctx /* : RequestContext*/, path /* : Path*/, callback /* : (exists : boolean*/) {
+    //     console.log('fast exist check');
+    // }
+    // r._create = function(path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/) {
+    //     // callback()
+    //     console.log('create');
+    // }
+    // r._etag = function(path /* : Path*/, ctx /* : ETagInfo*/, callback /* : ReturnCallback<string>*/) {
+    //     console.log('etag');
+    // }
+    // r._delete = function(path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/) {
+    //     console.log('delete');
+    // }
+    // r._openWriteStream = function(path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/) {
+    //     console.log('open write stream');
+    // }
+    // r._openReadStream = function(path /* : Path*/, ctx /* : OpenReadStreamInfo*/, callback /* : ReturnCallback<Readable>*/) {
+    //     console.log('open read stream');
+    // }
+    // r._move = function(pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/) {
+    //     console.log('move');
+    // }
+    // r._copy = function(pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : CopyInfo*/, callback /* : ReturnCallback<boolean>*/) {
+    //     console.log('copy');
+    // }
+    // r._rename = function(pathFrom /* : Path*/, newName /* : string*/, ctx /* : RenameInfo*/, callback /* : ReturnCallback<boolean>*/) {
+    //     console.log('rename');
+    // }
+    // r._mimeType = function(path /* : Path*/, ctx /* : MimeTypeInfo*/, callback /* : ReturnCallback<string>*/) {
+    //     console.log('mime type');
+    // }
+    // r._size = function(path /* : Path*/, ctx /* : SizeInfo*/, callback /* : ReturnCallback<number>*/) {
+    //     console.log('size');
+    // }
+    // r._availableLocks = function(path /* : Path*/, ctx /* : AvailableLocksInfo*/, callback /* : ReturnCallback<LockKind[]>*/) {
+    //     console.log('available locks');
+    // }
     function get_prop_from_resource(path, ctx, propname, callback) {
         let resource = r.resource[path.toString()];
         if (!resource) {
@@ -81,15 +106,26 @@ function filesystem(arg1, arg2)
         // TODO
         get_prop_from_resource(path, ctx, 'props', callback);
     }
-    // r._readDir = function(path /* : Path*/, ctx /* : ReadDirInfo*/, callback /* : ReturnCallback<string[] | Path[]>*/) {}
-    // r._creationDate = function(path /* : Path*/, ctx /* : CreationDateInfo*/, callback /* : ReturnCallback<number>*/) {}
-    // r._lastModifiedDate = function(path /* : Path*/, ctx /* : LastModifiedDateInfo*/, callback /* : ReturnCallback<number>*/) {}
-    // r._displayName = function(path /* : Path*/, ctx /* : DisplayNameInfo*/, callback /* : ReturnCallback<string>*/) {}
+    r._readDir = function(path /* : Path*/, ctx /* : ReadDirInfo*/, callback /* : ReturnCallback<string[] | Path[]>*/) {
+        console.log('read dir');
+        callback(null, ['tes', 'ttttt']);
+    }
+    // r._creationDate = function(path /* : Path*/, ctx /* : CreationDateInfo*/, callback /* : ReturnCallback<number>*/) {
+    //     console.log('creation date', path);
+    // }
+    // r._lastModifiedDate = function(path /* : Path*/, ctx /* : LastModifiedDateInfo*/, callback /* : ReturnCallback<number>*/) {
+    //     console.log('last modified date');
+    // }
+    // r._displayName = function(path /* : Path*/, ctx /* : DisplayNameInfo*/, callback /* : ReturnCallback<string>*/) {
+    //     console.log('display name', path);
+    // }
     r._type = function(path /* : Path*/, ctx /* : TypeInfo*/, callback /* : ReturnCallback<ResourceType>*/) {
         // TODO
         callback(null, webdav.ResourceType.Directory);
     }
-    // r._privilegeManager = function(path /* : Path*/, info /* : PrivilegeManagerInfo*/, callback /* : ReturnCallback<PrivilegeManager>*/) {}
+    // r._privilegeManager = function(path /* : Path*/, info /* : PrivilegeManagerInfo*/, callback /* : ReturnCallback<PrivilegeManager>*/) {
+    //     console.log('privilege manager')
+    // }
 
     return r;
 }
