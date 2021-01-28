@@ -95,9 +95,11 @@ function filesystem()
     // r._etag = function(path /* : Path*/, ctx /* : ETagInfo*/, callback /* : ReturnCallback<string>*/) {
     //     console.log('etag');
     // }
-    // r._delete = function(path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/) {
-    //     console.log('delete');
-    // }
+    r._delete = function(path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/) {
+        // todo 顺带着删除附属文件
+        console.log(path.toString());
+        callback(null);
+    }
     r._openWriteStream = function(path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/) {
         let buffers = [];
         const wstream = new Writable({
@@ -132,7 +134,12 @@ function filesystem()
         })
     }
     r._move = function(pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/) {
-        neo4j_run(`match (s:seed) where s.uri='${pathFrom.toString()}' set s.uri='${pathTo.toString()}'`).then(seeds=>{
+        // todo 重新建立文件夹关系
+        // fixme 不能使用全路径，使用全路径的话则目录名称修改全部都需要修改，使用路径名
+        neo4j_run(`
+            match (s:seed) where s.uri='${pathFrom.toString()}'
+            set s.uri='${pathTo.toString()}'
+        `).then(seeds=>{
             callback(null, true);
         });
     }
