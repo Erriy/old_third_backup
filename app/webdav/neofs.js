@@ -1,4 +1,26 @@
 const webdav = require('webdav-server').v2;
+const neo4j_driver = require('neo4j-driver');
+const {dirname, basename} = require('path');
+
+// fixme 内容、路径防注入
+
+let neo4j = neo4j_driver.driver(
+    'neo4j://127.0.0.1:7687',
+    neo4j_driver.auth.basic('neo4j', 'ub1JOnQcuV^rfBsr5%Ek')
+);
+
+
+async function neo4j_run(cql) {
+    let s = neo4j.session();
+    let result = undefined;
+    try{
+        result = await s.run(cql);
+    }
+    finally {
+        s.close();
+    }
+    return result;
+}
 
 
 // Serializer
@@ -12,14 +34,12 @@ function fs_serializer()
         serialize(fs, callback)
         {
             callback(null, {
-                arg1: fs.arg1,
-                arg2: fs.arg2,
                 resources: fs.resources
             });
         },
         unserialize(serializedData, callback)
         {
-            const fs = new filesystem(serializedData.arg1, serializedData.arg2);
+            const fs = new filesystem();
             fs.resources = serializedData.resources;
             for(const path in fs.resources)
             {
@@ -42,7 +62,7 @@ function fs_resource(data /* ?: any */)
 }
 
 // File system
-function filesystem(arg1, arg2)
+function filesystem()
 {
     const r = new webdav.FileSystem(new fs_serializer());
     r.constructor = filesystem;
@@ -50,16 +70,22 @@ function filesystem(arg1, arg2)
         '/': new fs_resource()
     };
 
-    r.arg1 = arg1;
-    r.arg2 = arg2;
-
     // r._fastExistCheck = function(ctx /* : RequestContext*/, path /* : Path*/, callback /* : (exists : boolean*/) {
     //     console.log('fast exist check');
     // }
-    // r._create = function(path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/) {
-    //     // callback()
-    //     console.log('create');
-    // }
+    r._create = function(path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/) {
+        let set_type_string = ctx.type.isDirectory ? '' : 'set s.type = "file"';
+        neo4j_run(`
+            merge (s:seed{uri: '${path.toString()}'}) ${set_type_string}
+            with s
+            merge (f:seed{uri: '${dirname(path.toString())}'}) with s, f
+            merge (f)<-[:in]-(s)
+        `).then(seeds=>{
+            console.log(seeds);
+            r.resources[path.toString()] = new fs_resource();
+            return callback(null);
+        });
+    }
     // r._etag = function(path /* : Path*/, ctx /* : ETagInfo*/, callback /* : ReturnCallback<string>*/) {
     //     console.log('etag');
     // }
@@ -72,9 +98,12 @@ function filesystem(arg1, arg2)
     // r._openReadStream = function(path /* : Path*/, ctx /* : OpenReadStreamInfo*/, callback /* : ReturnCallback<Readable>*/) {
     //     console.log('open read stream');
     // }
-    // r._move = function(pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/) {
-    //     console.log('move');
-    // }
+    r._move = function(pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/) {
+        console.log('move', pathFrom.toString() , "->", pathTo.toString());
+        neo4j_run(`match (s:seed) where s.uri='${pathFrom.toString()}' set s.uri='${pathTo.toString()}'`).then(seeds=>{
+            callback(true);
+        });
+    }
     // r._copy = function(pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : CopyInfo*/, callback /* : ReturnCallback<boolean>*/) {
     //     console.log('copy');
     // }
@@ -107,8 +136,9 @@ function filesystem(arg1, arg2)
         get_prop_from_resource(path, ctx, 'props', callback);
     }
     r._readDir = function(path /* : Path*/, ctx /* : ReadDirInfo*/, callback /* : ReturnCallback<string[] | Path[]>*/) {
-        console.log('read dir');
-        callback(null, ['tes', 'ttttt']);
+        neo4j_run(`match (s:seed)<-[:in]-(n:seed) where s.uri='${path.toString()}' return n.uri`).then(seeds=>{
+            callback(null, seeds.records.map(s=>(basename(s._fields[0]))));
+        })
     }
     // r._creationDate = function(path /* : Path*/, ctx /* : CreationDateInfo*/, callback /* : ReturnCallback<number>*/) {
     //     console.log('creation date', path);
@@ -120,8 +150,16 @@ function filesystem(arg1, arg2)
     //     console.log('display name', path);
     // }
     r._type = function(path /* : Path*/, ctx /* : TypeInfo*/, callback /* : ReturnCallback<ResourceType>*/) {
-        // TODO
-        callback(null, webdav.ResourceType.Directory);
+        if('/' == path.toString()) {
+            return callback(null, webdav.ResourceType.Directory);
+        }
+        neo4j_run(`match (s:seed) where s.uri='${path.toString()}' return s.type`).then(seeds=>{
+            if(0 === seeds.records.length) {
+                return callback(webdav.Errors.ResourceNotFound);
+            }
+            let type = seeds.records[0]._fields[0];
+            callback(null, type ? webdav.ResourceType.File : webdav.ResourceType.Directory);
+        });
     }
     // r._privilegeManager = function(path /* : Path*/, info /* : PrivilegeManagerInfo*/, callback /* : ReturnCallback<PrivilegeManager>*/) {
     //     console.log('privilege manager')

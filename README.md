@@ -13,7 +13,8 @@
 ``` json
 {
     "meta": {
-        "id": "", # 初始作者指纹.uuid
+        "uri": "",
+        "type": null, # 文件类型，没有文件类型则为目录
         "time": {
             "update": {
                 "timestamp": 111111 # 更新时间戳
