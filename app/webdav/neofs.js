@@ -99,9 +99,8 @@ function filesystem()
     //     console.log('open read stream');
     // }
     r._move = function(pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/) {
-        console.log('move', pathFrom.toString() , "->", pathTo.toString());
         neo4j_run(`match (s:seed) where s.uri='${pathFrom.toString()}' set s.uri='${pathTo.toString()}'`).then(seeds=>{
-            callback(true);
+            callback(null, true);
         });
     }
     // r._copy = function(pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : CopyInfo*/, callback /* : ReturnCallback<boolean>*/) {
