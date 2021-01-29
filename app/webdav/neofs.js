@@ -103,10 +103,18 @@ function filesystem()
         });
     };
 
-    r._readDir = (path /* : Path*/, ctx /* : ReadDirInfo*/, callback /* : ReturnCallback<string[] | Path[]>*/)=>{
-        let entrys = split_path(path.toString());
+    r._move = (pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/)=>{
         neo4j_run(`
-            ${find_entry_cql(entrys)}
+            ${find_entry_cql(split_path(pathFrom.toString()))}
+            set entry.fs_name=$fs_name
+        `, {fs_name: basename(pathTo.toString())}).then(seeds=>{
+            callback(null, true);
+        })
+    };
+
+    r._readDir = (path /* : Path*/, ctx /* : ReadDirInfo*/, callback /* : ReturnCallback<string[] | Path[]>*/)=>{
+        neo4j_run(`
+            ${find_entry_cql(split_path(path.toString()))}
             match (n:seed)-[:in]->(entry) return n.fs_name
         `).then(seeds=>{
             return callback(null, seeds.records.map(s=>(s._fields[0])));
@@ -114,8 +122,7 @@ function filesystem()
     };
 
     r._type = (path /* : Path*/, ctx /* : TypeInfo*/, callback /* : ReturnCallback<ResourceType>*/)=>{
-        let entrys = split_path(path.toString());
-        neo4j_run(`${find_entry_cql(entrys)} return entry.fs_type`).then(seeds=>{
+        neo4j_run(`${find_entry_cql(split_path(path.toString()))} return entry.fs_type`).then(seeds=>{
             if(0 === seeds.records.length) {
                 return callback(webdav.Errors.ResourceNotFound);
             }
