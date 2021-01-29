@@ -25,7 +25,7 @@ async function neo4j_run(...args) {
 }
 
 
-function find_entry_cql(path) {
+function find_entry_cql(path, name='entry') {
     let entrys = [];
     while(path!='/') {
         entrys.push(basename(path))
@@ -33,7 +33,7 @@ function find_entry_cql(path) {
     }
     entrys.push('/');
     entrys = entrys.reverse();
-    return `match ${entrys.map((e, i)=>(`(_n${i}:seed{fs_name:'${e}'})`)).join('<-[:in]-')} with _n${entrys.length-1} as entry`;
+    return `match ${entrys.map((e, i)=>(`(_n${i}:seed{fs_name:'${e}'})`)).join('<-[:in]-')} with _n${entrys.length-1} as ${name}`;
 }
 
 
@@ -135,11 +135,17 @@ function filesystem()
 
     r._move = (pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/)=>{
         neo4j_run(`
-            ${find_entry_cql(pathFrom.toString())}
-            set entry.fs_name=$fs_name
-        `, {fs_name: basename(pathTo.toString())}).then(seeds=>{
-            callback(null, true);
-        })
+            ${find_entry_cql(pathTo.toString())} return entry
+        `).then(r=>{
+            if (0!==r.records.length) {
+                return callback(null, false);
+            }
+            neo4j_run(`
+                ${find_entry_cql(pathFrom.toString())} set entry.fs_name=$fs_name
+            `, {fs_name: basename(pathTo.toString())} ).then(r=>{
+                callback(null, true);
+            });
+        });
     };
 
     r._readDir = (path /* : Path*/, ctx /* : ReadDirInfo*/, callback /* : ReturnCallback<string[] | Path[]>*/)=>{
