@@ -3,7 +3,7 @@ const neo4j_driver = require('neo4j-driver');
 const {dirname, basename} = require('path');
 const tempfile = require('tempfile');
 const fs = require('fs');
-const {Writable, Readable} = require('stream');
+const {Readable} = require('stream');
 
 
 let neo4j = neo4j_driver.driver(
@@ -106,15 +106,13 @@ function filesystem()
         let wstream = fs.createWriteStream(filepath);
         wstream.on('finish', ()=>{
             // fixme: 判断文件大小和文件类型
-            let data = fs.createReadStream(filepath).read();
-            neo4j_run(`
-                ${find_entry_cql(dirname(path.toString()))}
-                merge (s:seed{fs_type: 'file', fs_name: $fs_name, seed_block:$seed_block}) with entry, s
-                merge (s)-[:in]->(entry)
-            `, {
-                fs_name: basename(path.toString()),
-                seed_block: data = data ? data: '',
-            }).finally(()=>{fs.unlink(filepath, ()=>{})});
+            fs.readFile(filepath, 'utf8', (e, data)=>{
+                    neo4j_run(`
+                    ${find_entry_cql(path.toString())} set entry.seed_block=$seed_block
+                `, {
+                    seed_block: data = data ? data: '',
+                }).finally(()=>{fs.unlink(filepath, ()=>{})});
+            });
         });
         callback(null, wstream);
     };
@@ -124,12 +122,8 @@ function filesystem()
             ${find_entry_cql(path.toString())} return entry.seed_block
         `).then(seeds=>{
             // fixme: 如果是文件数据，返回文件流
-            let rstream = new Readable();
             let block = seeds.records[0]._fields[0];
-            block = block ? block: '';
-            rstream.push(Buffer.from(block, 'utf-8'));
-            rstream.push(null);
-            callback(null, rstream);
+            callback(null, Readable.from(block));
         });
     };
 
