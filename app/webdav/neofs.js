@@ -152,6 +152,15 @@ function filesystem()
         });
     };
 
+    r._size = (path /* : Path*/, ctx /* : SizeInfo*/, callback /* : ReturnCallback<number>*/)=>{
+        // todo 如果是文件的话，则返回文件大小
+        neo4j_run(`
+            ${find_entry_cql(path.toString())} return size(entry.seed_block)
+        `).then(r=>{
+            return callback(null, Number(r.records[0]._fields[0]));
+        });
+    };
+
     r._type = (path /* : Path*/, ctx /* : TypeInfo*/, callback /* : ReturnCallback<ResourceType>*/)=>{
         neo4j_run(`${find_entry_cql(path.toString())} return entry.fs_type`).then(seeds=>{
             if(0 === seeds.records.length) {
