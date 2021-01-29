@@ -1,6 +1,8 @@
 const webdav = require('webdav-server').v2;
 const neo4j_driver = require('neo4j-driver');
 const {dirname, basename} = require('path');
+const tempfile = require('tempfile');
+const fs = require('fs');
 const {Writable, Readable} = require('stream');
 
 
@@ -91,16 +93,35 @@ function filesystem()
     neo4j_run(`merge (:seed{fs_name: '/'})`).then();
 
     r._create = (path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/)=>{
-        let entrys = split_path(path.toString());
-        let basename = entrys.pop();
+        let entrys = split_path(dirname(path.toString()));
+        let name = basename(path.toString());
+        let typeinfo = ctx.type.isDirectory ? '' : ', type:"file"';
 
         neo4j_run(`
             ${find_entry_cql(entrys)}
-            create (s:seed{fs_name: $fs_name})-[:in]->(entry)
-        `, {fs_name: basename}).then(seeds=>{
+            create (s:seed{fs_name: $fs_name ${typeinfo}})-[:in]->(entry)
+        `, {fs_name: name}).then(seeds=>{
             r.resources[path.toString()] = new fs_resource();
             return callback(null);
         });
+    };
+
+    r._openWriteStream = (path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/)=>{
+        let filepath = tempfile();
+        let wstream = fs.createWriteStream(filepath);
+        wstream.on('finish', ()=>{
+            // fixme: 判断文件大小和文件类型
+            let data = fs.createReadStream(filepath).read();
+            neo4j_run(`
+                ${find_entry_cql(split_path(dirname(path.toString())))}
+                merge (s:seed{fs_type: 'file', fs_name: $fs_name, seed_block:$seed_block}) with entry, s
+                merge (s)-[:in]->(entry)
+            `, {
+                fs_name: basename(path.toString()),
+                seed_block: data = data ? data: '',
+            }).finally(()=>{fs.unlink(filepath, ()=>{})});
+        });
+        callback(null, wstream);
     };
 
     r._move = (pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/)=>{
