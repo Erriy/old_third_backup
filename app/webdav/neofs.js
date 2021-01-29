@@ -133,7 +133,7 @@ function filesystem()
             ${find_entry_cql(pathTo.toString())} return entry
         `).then(r=>{
             if (0!==r.records.length) {
-                return callback(null, false);
+                return callback(webdav.Errors.ResourceAlreadyExists, false);
             }
             neo4j_run(`
                 ${find_entry_cql(pathFrom.toString())} set entry.fs_name=$fs_name
