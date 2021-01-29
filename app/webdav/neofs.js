@@ -107,6 +107,7 @@ function filesystem()
             match (s:seed)-[:in*0..]->(entry)
             detach delete s
         `).then(()=>{
+            delete r.resources[path.toString()];
             callback(null);
         });
     };
