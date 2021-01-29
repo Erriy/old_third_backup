@@ -90,7 +90,7 @@ function filesystem()
 
     r._create = (path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/)=>{
         let name = basename(path.toString());
-        let typeinfo = ctx.type.isDirectory ? '' : ', type:"file"';
+        let typeinfo = ctx.type.isDirectory ? '' : ', fs_type:"file"';
 
         neo4j_run(`
             ${find_entry_cql(dirname(path.toString()))}
@@ -117,6 +117,20 @@ function filesystem()
             }).finally(()=>{fs.unlink(filepath, ()=>{})});
         });
         callback(null, wstream);
+    };
+
+    r._openReadStream = (path /* : Path*/, ctx /* : OpenReadStreamInfo*/, callback /* : ReturnCallback<Readable>*/)=>{
+        neo4j_run(`
+            ${find_entry_cql(path.toString())} return entry.seed_block
+        `).then(seeds=>{
+            // fixme: 如果是文件数据，返回文件流
+            let rstream = new Readable();
+            let block = seeds.records[0]._fields[0];
+            block = block ? block: '';
+            rstream.push(Buffer.from(block, 'utf-8'));
+            rstream.push(null);
+            callback(null, rstream);
+        });
     };
 
     r._move = (pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/)=>{
