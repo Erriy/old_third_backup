@@ -25,18 +25,14 @@ async function neo4j_run(...args) {
 }
 
 
-function split_path(path) {
+function find_entry_cql(path) {
     let entrys = [];
     while(path!='/') {
         entrys.push(basename(path))
         path = dirname(path);
     }
     entrys.push('/');
-    return entrys.reverse();
-}
-
-
-function find_entry_cql(entrys) {
+    entrys = entrys.reverse();
     return `match ${entrys.map((e, i)=>(`(_n${i}:seed{fs_name:'${e}'})`)).join('<-[:in]-')} with _n${entrys.length-1} as entry`;
 }
 
@@ -93,12 +89,11 @@ function filesystem()
     neo4j_run(`merge (:seed{fs_name: '/'})`).then();
 
     r._create = (path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/)=>{
-        let entrys = split_path(dirname(path.toString()));
         let name = basename(path.toString());
         let typeinfo = ctx.type.isDirectory ? '' : ', type:"file"';
 
         neo4j_run(`
-            ${find_entry_cql(entrys)}
+            ${find_entry_cql(dirname(path.toString()))}
             create (s:seed{fs_name: $fs_name ${typeinfo}})-[:in]->(entry)
         `, {fs_name: name}).then(seeds=>{
             r.resources[path.toString()] = new fs_resource();
@@ -113,7 +108,7 @@ function filesystem()
             // fixme: 判断文件大小和文件类型
             let data = fs.createReadStream(filepath).read();
             neo4j_run(`
-                ${find_entry_cql(split_path(dirname(path.toString())))}
+                ${find_entry_cql(dirname(path.toString()))}
                 merge (s:seed{fs_type: 'file', fs_name: $fs_name, seed_block:$seed_block}) with entry, s
                 merge (s)-[:in]->(entry)
             `, {
@@ -126,7 +121,7 @@ function filesystem()
 
     r._move = (pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/)=>{
         neo4j_run(`
-            ${find_entry_cql(split_path(pathFrom.toString()))}
+            ${find_entry_cql(pathFrom.toString())}
             set entry.fs_name=$fs_name
         `, {fs_name: basename(pathTo.toString())}).then(seeds=>{
             callback(null, true);
@@ -135,7 +130,7 @@ function filesystem()
 
     r._readDir = (path /* : Path*/, ctx /* : ReadDirInfo*/, callback /* : ReturnCallback<string[] | Path[]>*/)=>{
         neo4j_run(`
-            ${find_entry_cql(split_path(path.toString()))}
+            ${find_entry_cql(path.toString())}
             match (n:seed)-[:in]->(entry) return n.fs_name
         `).then(seeds=>{
             return callback(null, seeds.records.map(s=>(s._fields[0])));
@@ -143,7 +138,7 @@ function filesystem()
     };
 
     r._type = (path /* : Path*/, ctx /* : TypeInfo*/, callback /* : ReturnCallback<ResourceType>*/)=>{
-        neo4j_run(`${find_entry_cql(split_path(path.toString()))} return entry.fs_type`).then(seeds=>{
+        neo4j_run(`${find_entry_cql(path.toString())} return entry.fs_type`).then(seeds=>{
             if(0 === seeds.records.length) {
                 return callback(webdav.Errors.ResourceNotFound);
             }
