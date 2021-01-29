@@ -118,7 +118,7 @@ function filesystem()
         wstream.on('finish', ()=>{
             // fixme: 判断文件大小和文件类型
             // fixme 处理编码问题
-            fs.readFile(filepath, 'utf8', (e, data)=>{
+            fs.readFile(filepath, (e, data)=>{
                     neo4j_run(`
                     ${find_entry_cql(path.toString())} set entry.seed_block=$seed_block
                 `, {
@@ -135,7 +135,7 @@ function filesystem()
         `).then(seeds=>{
             // fixme: 如果是文件数据，返回文件流
             let block = seeds.records[0]._fields[0];
-            callback(null, Readable.from(block));
+            callback(null, Readable.from(Buffer.from(block)));
         });
     };
 
