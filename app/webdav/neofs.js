@@ -101,6 +101,16 @@ function filesystem()
         });
     };
 
+    r._delete = (path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/)=>{
+        neo4j_run(`
+            ${find_entry_cql(path.toString())}
+            match (s:seed)-[:in*0..]->(entry)
+            detach delete s
+        `).then(()=>{
+            callback(null);
+        });
+    };
+
     r._openWriteStream = (path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/)=>{
         let filepath = tempfile();
         let wstream = fs.createWriteStream(filepath);
