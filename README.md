@@ -41,6 +41,7 @@
 - fs_name
 - fs_type
 - seed_block # 原始数据
+- search_fulltext # 全文索引字段
 
 ### 服务器选择
 
@@ -176,4 +177,9 @@ npm run build
 | v0.6 | 公开数据发布到github（或其他服务接口）                       |
 
 ## Q&A
+
+
+### windows 系统下的0x800700DF错误
+
+修改注册表'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters'中的FileSizeLimitInBytes大小，最大为16进制0xffffffff（即4g）,在任务管理器-服务标签页中重新启动webclient服务
 
