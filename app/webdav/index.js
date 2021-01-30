@@ -8,6 +8,7 @@ const server = new webdav.WebDAVServer({
 
 server.start(() => console.log('READY'));
 
+// todo 网络资源映射，比如网站视频资源等
 
 /**
  * windows 挂载webdav
