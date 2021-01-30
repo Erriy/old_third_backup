@@ -7,3 +7,10 @@ const server = new webdav.WebDAVServer({
 });
 
 server.start(() => console.log('READY'));
+
+
+/**
+ * windows 挂载webdav
+ *      - net use z: http://localhost:1900/
+ *
+ */
