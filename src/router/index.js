@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import list from '../views/list.vue';
+import test from '@/views/test.vue';
 
 
 Vue.use(VueRouter);
@@ -9,7 +10,7 @@ Vue.use(VueRouter);
 const routes = [
     {
         path: '/',
-        component: list
+        component: test
     },
     {
         path: '/list',

@@ -4,6 +4,11 @@ const {dirname, basename} = require('path');
 const tempfile = require('tempfile');
 const fs = require('fs');
 const {Readable} = require('stream');
+const filetype = require('file-type');
+const util = require('util');
+
+
+const fs_stat = util.promisify(fs.stat);
 
 
 let neo4j = neo4j_driver.driver(
@@ -115,27 +120,41 @@ function filesystem()
     r._openWriteStream = (path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/)=>{
         let filepath = tempfile();
         let wstream = fs.createWriteStream(filepath);
-        wstream.on('finish', ()=>{
+        wstream.on('finish', async ()=>{
             // fixme: 判断文件大小和文件类型
             // fixme 处理编码问题
-            fs.readFile(filepath, (e, data)=>{
-                    neo4j_run(`
-                    ${find_entry_cql(path.toString())} set entry.seed_block=$seed_block
-                `, {
-                    seed_block: data = data ? data: '',
-                }).finally(()=>{fs.unlink(filepath, ()=>{})});
-            });
+            // let ft = await filetype.fromFile(filepath);
+            neo4j_run(`
+                ${find_entry_cql(path.toString())} set entry.path='${filepath}'
+            `).then();
+            // fs.readFile(filepath, (e, data)=>{
+            //     neo4j_run(`
+            //         ${find_entry_cql(path.toString())} set entry.path='${filepath}'
+            //     `, {
+            //         seed_block: data = data ? data: '',
+            //     }).finally(()=>{fs.unlink(filepath, ()=>{})});
+            // });
         });
         callback(null, wstream);
     };
 
     r._openReadStream = (path /* : Path*/, ctx /* : OpenReadStreamInfo*/, callback /* : ReturnCallback<Readable>*/)=>{
         neo4j_run(`
-            ${find_entry_cql(path.toString())} return entry.seed_block
+            ${find_entry_cql(path.toString())} return entry.path
         `).then(seeds=>{
             // fixme: 如果是文件数据，返回文件流
-            let block = seeds.records[0]._fields[0];
-            callback(null, Readable.from(Buffer.from(block)));
+            let path = seeds.records[0]._fields[0];
+            let rstream = null;
+            if(!path){
+                rstream = new Readable();
+                rstream.push("");
+                rstream.push(null);
+            }
+            else {
+                rstream = fs.createWriteStream(path);
+            }
+            callback(null, rstream);
+            // callback(null, Readable.from(Buffer.from(block)));
         });
     };
 
@@ -166,9 +185,13 @@ function filesystem()
     r._size = (path /* : Path*/, ctx /* : SizeInfo*/, callback /* : ReturnCallback<number>*/)=>{
         // todo 如果是文件的话，则返回文件大小
         neo4j_run(`
-            ${find_entry_cql(path.toString())} return size(entry.seed_block)
-        `).then(r=>{
-            return callback(null, Number(r.records[0]._fields[0]));
+            ${find_entry_cql(path.toString())} return entry.path
+        `).then(async r=>{
+            let size = 0;
+            if(r.records[0]._fields[0]) {
+                size = (await fs_stat(r.records[0]._fields[0])).size;
+            }
+            return callback(null, size);
         });
     };
 
