@@ -48,7 +48,7 @@
         "electron:serve": "cross-env DEBUG=true electron .",
         "electron:build": "electron-builder",
         "build": "vue-cli-service build && electron-builder",
-        "lint": "eslint --ext .vue --fix .",
+        "lint": "eslint --ext .js,.vue,.json --fix .",
         "publish": "node publish.js"
     },
     "dependencies": {
@@ -80,6 +80,8 @@
         "electron": "^11.2.0",
         "electron-builder": "^22.9.1",
         "eslint": "^7.19.0",
+        "eslint-plugin-json": "^2.1.2",
+        "eslint-plugin-md": "^1.0.19",
         "eslint-plugin-vue": "^7.5.0",
         "vue-template-compiler": "^2.6.11",
         "yorkie": "^2.0.0"
