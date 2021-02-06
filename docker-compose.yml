@@ -5,6 +5,7 @@ services:
         image: neo4j:4.2.2
         environment:
             - NEO4J_AUTH=neo4j/ub1JOnQcuV^rfBsr5%Ek
+        restart: always
         volumes:
             - ./data/neo4j:/data
         ports:
