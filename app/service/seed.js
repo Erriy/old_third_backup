@@ -3,8 +3,8 @@ const router = express.Router();
 require('express-async-errors');
 
 
-const dumps = d=>(encodeURIComponent(JSON.stringify(d)).replace("'", '%27'));
-const loads = s=>(JSON.parse(decodeURIComponent(s.replace('%27', "'"))));
+const dumps = d=>(encodeURIComponent(JSON.stringify(d)).replace('\'', '%27'));
+const loads = s=>(JSON.parse(decodeURIComponent(s.replace('%27', '\''))));
 
 
 router.put('', async(req, res)=>{
@@ -15,7 +15,7 @@ router.put('', async(req, res)=>{
         set
             s.seedid='${s.meta.id}',
             s.update_ts=${s.meta.time.update.timestamp},
-            s.full_text='${s.data.replaceAll(/\p{P}/ug, " ")}',
+            s.full_text='${s.data.replaceAll(/\p{P}/ug, ' ')}',
             s.block='${dumps(s)}'
     `;
     await res.neo.run(cql);
@@ -68,13 +68,13 @@ router.get('', async(req, res)=>{
             list: result.records.map(s=>(loads(s.get('s').properties.block)))
         }
     });
-})
+});
 
 
 router.delete('/:seedid', async(req, res)=>{
     let cql = `
         match (s:seed) where s.seedid='${req.params.seedid}' detach delete s
-    `
+    `;
     await res.neo.run(cql);
     return res.build();
 });

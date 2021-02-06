@@ -1,7 +1,6 @@
 const {
     Menu,
     BrowserWindow,
-    dialog,
 } = require('electron');
 const {check:check_update} = require('./update');
 const service = require('./service');
@@ -27,14 +26,14 @@ function isvisible(i) {
 }
 
 
-function ischecked(i, value) {
-    if(i && typeof(i) === 'string') {
-        return -1 !== i.indexOf(value);
-    }
-    else {
-        return false;
-    }
-}
+// function ischecked(i, value) {
+//     if(i && typeof(i) === 'string') {
+//         return -1 !== i.indexOf(value);
+//     }
+//     else {
+//         return false;
+//     }
+// }
 
 
 function update({
@@ -56,7 +55,7 @@ function update({
                     label: '新建',
                     accelerator: 'CmdOrCtrl+n',
                     click() {
-                        e.sender.send('seed', {new: true})
+                        e.sender.send('seed', {new: true});
                     }
                 },
                 {
@@ -64,14 +63,14 @@ function update({
                     accelerator: 'CmdOrCtrl+l',
                     enabled: isenabled(seed.list),
                     click() {
-                        e.sender.send('seed', {list: true})
+                        e.sender.send('seed', {list: true});
                     }
                 },
                 {
                     label: '保存',
                     accelerator: 'CmdOrCtrl+s',
                     click() {
-                        e.sender.send('seed', {save: true})
+                        e.sender.send('seed', {save: true});
                     }
                 },
                 {
@@ -79,7 +78,7 @@ function update({
                     accelerator: 'CmdOrCtrl+d',
                     visible: isvisible(seed.delete),
                     click() {
-                        e.sender.send('seed', {delete: true})
+                        e.sender.send('seed', {delete: true});
                     }
                 }
             ]
@@ -95,14 +94,14 @@ function update({
                     label: '保存',
                     accelerator: 'CmdOrCtrl+s',
                     click() {
-                        e.sender.send('file', {save: true})
+                        e.sender.send('file', {save: true});
                     }
                 },
                 {
                     label: '关闭',
                     accelerator: 'CmdOrCtrl+w',
                     click() {
-                        e.sender.send('file', {close: true})
+                        e.sender.send('file', {close: true});
                     }
                 }
             ]
@@ -177,7 +176,7 @@ function update({
             {
                 label: '配置',
                 click() {
-                    e.sender.send('config', {config: "service"});
+                    e.sender.send('config', {config: 'service'});
                 }
             }
             // {

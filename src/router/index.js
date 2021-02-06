@@ -1,7 +1,7 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-import list from '../views/list.vue';
-import test from '@/views/test.vue';
+const Vue = require('vue').default;
+const VueRouter = require('vue-router').default;
+const list = require('../views/list.vue').default;
+const test = require('@/views/test.vue').default;
 
 
 Vue.use(VueRouter);
@@ -19,13 +19,13 @@ const routes = [
     {
         path: '/seed',
         component() {
-            return import('../views/seed.vue');
+            return require('../views/seed.vue').default;
         }
     },
     {
         path: '/service_config',
         component(){
-            return import('../views/service_config.vue');
+            return require('../views/service_config.vue').default;
         }
     }
 ];
@@ -34,4 +34,5 @@ const router = new VueRouter({
     routes
 });
 
-export default router;
+module.exports = router;
+

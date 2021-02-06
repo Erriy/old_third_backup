@@ -17,7 +17,7 @@ async function _request({
             headers: headers,
             data: data
         }).then(r=>resolve(r.data))
-        .catch(e=>reject(e.response?e.response.data.message:e.message));
+            .catch(e=>reject(e.response?e.response.data.message:e.message));
     });
 }
 
@@ -25,7 +25,7 @@ async function _request({
 async function save({
     id='',
     service='',
-    data="",
+    data='',
 }={}) {
     let ts = new Date().getTime()/1000;
     let object_seed = {
@@ -43,7 +43,7 @@ async function save({
     return _request({
         method: 'PUT',
         service,
-        path: `/seed`,
+        path: '/seed',
         data: object_seed,
     });
 }

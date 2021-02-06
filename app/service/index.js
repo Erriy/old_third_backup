@@ -18,7 +18,7 @@ async function stop() {
         obj.neo = null;
     }
     if(obj.server) {
-        await obj.server.close()
+        await obj.server.close();
         obj.server = null;
     }
 }
@@ -56,14 +56,14 @@ async function start({
     app.use((req, res, next)=>{
         res.build = ({
             code=200,
-            message="操作成功",
+            message='操作成功',
             data=undefined
         }={})=>{
             res.status(code);
-            retobj = {code, message};
+            let retobj = {code, message};
             if(data) {retobj.data=data;}
             res.send(retobj);
-        }
+        };
         next();
     });
     // 自动构建session
@@ -95,7 +95,7 @@ async function start({
         next(err);
     });
     // 启动本地服务
-    obj.server = app.listen(service.port||6952, service.host||"127.0.0.1");
+    obj.server = app.listen(service.port||6952, service.host||'127.0.0.1');
 }
 
 

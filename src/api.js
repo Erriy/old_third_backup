@@ -1,4 +1,4 @@
-const {ipcRenderer} = window.require("electron");
+const {ipcRenderer} = window.require('electron');
 
 
 const method_handler = {
@@ -23,8 +23,9 @@ const module_handler = {
 };
 
 
-export default {
+module.exports = {
     install(Vue) {
         Vue.prototype.$api = new Proxy({}, module_handler);
     }
-}
+};
+

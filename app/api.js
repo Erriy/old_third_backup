@@ -12,13 +12,13 @@ function regist_api_modules(modules_path) {
             const module_name = file.slice(0, file.length-3);
             const md = require(path.join(modules_path, module_name));
             Object.keys(md)
-            .filter(name=>!name.startsWith('_'))
-            .map(name=>ipcMain.handle(
-                `${module_name}.${name}`,
-                (e, ... args)=>(md[name](...args, e))
-            ));
+                .filter(name=>!name.startsWith('_'))
+                .map(name=>ipcMain.handle(
+                    `${module_name}.${name}`,
+                    (e, ... args)=>(md[name](...args, e))
+                ));
         }
-    })
+    });
 }
 
 

@@ -4,7 +4,6 @@ const {dirname, basename} = require('path');
 const tempfile = require('tempfile');
 const fs = require('fs');
 const {Readable} = require('stream');
-const filetype = require('file-type');
 const util = require('util');
 
 
@@ -33,7 +32,7 @@ async function neo4j_run(...args) {
 function find_entry_cql(path, name='entry') {
     let entrys = [];
     while(path!='/') {
-        entrys.push(basename(path))
+        entrys.push(basename(path));
         path = dirname(path);
     }
     entrys.push('/');
@@ -48,7 +47,7 @@ function fs_serializer()
     return {
         uid()
         {
-            return "fs_serializer_1.0.0";
+            return 'fs_serializer_1.0.0';
         },
         serialize(fs, callback)
         {
@@ -68,7 +67,7 @@ function fs_serializer()
             callback(null, fs);
         },
         constructor: fs_serializer
-    }
+    };
 }
 
 
@@ -91,7 +90,7 @@ function filesystem()
     };
 
     // 初始化根目录节点
-    neo4j_run(`merge (:seed{fs_name: '/'})`).then();
+    neo4j_run('merge (:seed{fs_name: \'/\'})').then();
 
     r._create = (path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/)=>{
         let name = basename(path.toString());
@@ -147,7 +146,7 @@ function filesystem()
             let rstream = null;
             if(!path){
                 rstream = new Readable();
-                rstream.push("");
+                rstream.push('');
                 rstream.push(null);
             }
             else {
@@ -167,7 +166,7 @@ function filesystem()
             }
             neo4j_run(`
                 ${find_entry_cql(pathFrom.toString())} set entry.fs_name=$fs_name
-            `, {fs_name: basename(pathTo.toString())} ).then(r=>{
+            `, {fs_name: basename(pathTo.toString())} ).then(()=>{
                 callback(null, true);
             });
         });
@@ -211,16 +210,16 @@ function filesystem()
             resource = new fs_resource();
             r.resources[path.toString()] = resource;
         }
-        callback(null, resource[propname])
+        callback(null, resource[propname]);
     }
 
     r._lockManager = (path /* : Path*/, ctx /* : LockManagerInfo*/, callback /* : ReturnCallback<ILockManager>*/)=>{
         get_prop_from_resource(path, ctx, 'locks', callback);
-    }
+    };
 
     r._propertyManager = (path /* : Path*/, ctx /* : PropertyManagerInfo*/, callback /* : ReturnCallback<IPropertyManager>*/)=>{
         get_prop_from_resource(path, ctx, 'props', callback);
-    }
+    };
 
     return r;
 }

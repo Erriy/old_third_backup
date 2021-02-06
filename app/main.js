@@ -1,7 +1,6 @@
 const {
     app,
     globalShortcut,
-    clipboard,
     Tray,
     Menu,
     nativeImage,
@@ -28,7 +27,7 @@ function auto_check_update() {
 
 
 function tray_init() {
-    obj.tray = new Tray(nativeImage.createFromPath(path.join(__dirname, "../dist/favicon.ico")));
+    obj.tray = new Tray(nativeImage.createFromPath(path.join(__dirname, '../dist/favicon.ico')));
     obj.tray.setContextMenu(Menu.buildFromTemplate([
         {
             label: '新建窗口',
@@ -87,10 +86,10 @@ if(!app.requestSingleInstanceLock()) {
     app.quit();
 }
 else {
-    app.on('second-instance', (event, commandLine, workingDirectory) => {
+    app.on('second-instance', () => {
         // todo 根据命令来处理打开窗口
         window.create();
-    })
+    });
     app.on('ready', async()=>{
         let __start = new Date();
         window.create();
