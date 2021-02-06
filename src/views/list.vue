@@ -4,9 +4,11 @@
             :columns="table.columns"
             :data-source="table.list"
             @change="table_change"
+        />
+        <scroll-loader
+            :loader-method="load_more"
+            :loader-disable="load.loading||load.no_more"
         >
-        </a-table>
-        <scroll-loader :loader-method="load_more" :loader-disable="load.loading||load.no_more">
             <div>加载中，请稍后...</div>
         </scroll-loader>
     </div>
@@ -65,7 +67,7 @@ export default {
                 ],
                 list: [],
             }
-        }
+        };
     },
     methods: {
         table_change(pagination, filters, sorter) {
@@ -90,21 +92,21 @@ export default {
                 // from_ts: this.load.search.date_range.from > 0?this.load.search.date_range.from/1000: '',
                 // to_ts: this.load.search.date_range.to > 0?this.seed.search.date_range.to/1000: '',
             })
-            .then(async (res)=>{
-                if (0 === res.data.list.length) {
-                    this.load.no_more = true;
-                    return;
-                }
-                for(let s of res.data.list) {
-                    this.table.list.push(s);
-                }
-                this.table.list.sort((a,b)=>(a.meta.time.update.timestamp>b.meta.time.update.timestamp));
-                this.load.page += 1;
-            })
-            .finally(()=>this.load.loading=false);
+                .then(async (res)=>{
+                    if (0 === res.data.list.length) {
+                        this.load.no_more = true;
+                        return;
+                    }
+                    for(let s of res.data.list) {
+                        this.table.list.push(s);
+                    }
+                    this.table.list.sort((a,b)=>(a.meta.time.update.timestamp>b.meta.time.update.timestamp));
+                    this.load.page += 1;
+                })
+                .finally(()=>this.load.loading=false);
         },
     }
-}
+};
 </script>
 
 <style>

@@ -1,10 +1,13 @@
 
 <template>
-    <div ref="container" class='editor-fullscreen'></div>
+    <div
+        ref="container"
+        class="editor-fullscreen"
+    />
 </template>
 
 <script>
-import * as monaco from "monaco-editor";
+import * as monaco from 'monaco-editor';
 const {ipcRenderer} = window.require('electron');
 
 export default{
@@ -12,34 +15,7 @@ export default{
         return {
             editor: null,
             need_save: false,
-        }
-    },
-    methods: {
-        save_config() {
-            try{
-                let config_data = JSON.parse(this.editor.getValue());
-                this.$api.service.set_config(config_data).then(()=>{
-                    this.need_save = false;
-                    this.$common.title.update({change:false});
-                });
-            }catch(err) {
-                this.$message.error('配置格式错误');
-            }
-        },
-        ipc_file_listener(e, a) {
-            if(a.save) {
-                this.save_config();
-            }
-            else if(a.close) {
-                let that = this;
-                if(this.need_save) {
-                    this.$message.error('配置未保存');
-                }
-                else {
-                    this.$router.go(-1);
-                }
-            }
-        }
+        };
     },
     destroyed() {
         ipcRenderer.removeListener('file', this.ipc_file_listener);
@@ -74,8 +50,35 @@ export default{
             });
         });
 
+    },
+    methods: {
+        save_config() {
+            try{
+                let config_data = JSON.parse(this.editor.getValue());
+                this.$api.service.set_config(config_data).then(()=>{
+                    this.need_save = false;
+                    this.$common.title.update({change:false});
+                });
+            }catch(err) {
+                this.$message.error('配置格式错误');
+            }
+        },
+        ipc_file_listener(e, a) {
+            if(a.save) {
+                this.save_config();
+            }
+            else if(a.close) {
+                let that = this;
+                if(this.need_save) {
+                    this.$message.error('配置未保存');
+                }
+                else {
+                    this.$router.go(-1);
+                }
+            }
+        }
     }
-}
+};
 </script>
 
 <style>
