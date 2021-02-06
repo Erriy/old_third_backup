@@ -206,3 +206,10 @@ npm run build
 
 修改注册表'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters'中的FileSizeLimitInBytes大小，最大为16进制0xffffffff（即4g）,在任务管理器-服务标签页中重新启动webclient服务
 
+
+## 自动压缩隧道
+
+隧道中间根据出现频率自动生成字典，然后发送给对方。双方维护沟通字典，根据命中来缓存这个表，多少次未命中后则淘汰表项，持续命中则一直保持。
+空间换时间还是时间换空间，其实就是压缩方法的一种变种。
+
+
