@@ -9,16 +9,16 @@ const server = new webdav.WebDAVServer({
 });
 
 server.start(async () => {
-    let app = undefined;
-    for(let a of ['nautilus', 'thunar']) {
-        try {
-            await cmd_exists(a);
-            app = a;
-            break;
-        }
-        catch(e) {}
-    }
-    await open('dav://localhost:1900/', {wait: false, app:app});
+    // let app = undefined;
+    // for(let a of ['nautilus', 'thunar']) {
+    //     try {
+    //         await cmd_exists(a);
+    //         app = a;
+    //         break;
+    //     }
+    //     catch(e) {}
+    // }
+    // await open('dav://localhost:1900/', {wait: false, app:app});
 });
 
 console.log('test');

@@ -1,13 +1,14 @@
 const webdav = require('webdav-server').v2;
 const os = require('os');
 const open = require('open');
-const cmd_exists = require('command-exists');
+const {spawn} = require('child_process');
+const sys_path = require('path');
 
 let obj = {
     server: null,
     options: {
-        host: undefined,
-        port: undefined,
+        host: 'localhost',
+        port: 63389,
     },
 };
 
@@ -19,17 +20,12 @@ function stop() {
 }
 
 const open_handler = {
-    linux: async ()=>{
-        let app = undefined;
-        for(let a of ['thunar', 'nautilus']) {
-            try {
-                await cmd_exists(a);
-                app = a;
-                break;
-            }
-            catch(e) {}
-        }
-        await open('dav://localhost:1900/', {wait: false, app:app});
+    linux: async (path)=>{
+        // gio mount dav://localhost:1900/
+        // gentoo : gio in dev-libs/glib
+        let file = sys_path.join(`/var/run/user/${process.getuid()}/gvfs/dav:host=localhost,port=${obj.options.port},ssl=false/`, path);
+        console.log(file);
+        await open(file);
     },
     win32: async()=>{
         // todo win32 open handler
@@ -40,8 +36,8 @@ const open_handler = {
 };
 
 const mount_handler = {
-    linux: async ()=>{
-        return open_handler.linux;
+    linux: ()=>{
+        spawn('/usr/bin/gio', ['mount', `dav://localhost:${obj.options.port}`]);
     },
     win32: async()=>{
         // todo win32 mount handler
@@ -51,7 +47,7 @@ const mount_handler = {
     },
 };
 
-const wabdav_open = open_handler[os.platform()];
+const webdav_open = open_handler[os.platform()];
 const mount = mount_handler[os.platform()];
 
 function start({
@@ -64,12 +60,18 @@ function start({
         port: port,
         // rootFileSystem: new neofs.filesystem(),
     });
-    obj.server.start();
-    mount();
+    obj.options.host = host;
+    obj.options.port = port;
+    obj.server.start(()=>mount());
+}
+
+if (typeof require !== 'undefined' && require.main === module) {
+    start();
+    // webdav_open('/test.md');
 }
 
 module.exports = {
     start,
     stop,
-    open: wabdav_open,
+    open: webdav_open,
 };
