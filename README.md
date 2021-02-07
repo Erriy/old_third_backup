@@ -193,6 +193,8 @@ npm run build
 - [ ] 文件改变后触发同步
   - [ ] git同步到github
   - [ ] 本地同步到其他认可设备
+- [ ] 使用prettier自动格式化
+- [ ] eslint仅处理staged数据
 
 
 ## 版本计划
