@@ -14,7 +14,7 @@ function stop() {
 function start({
     host='localhost',
     port=63389,
-}) {
+}={}) {
     stop();
     obj.server = new webdav.WebDAVServer({
         hostname: host,
