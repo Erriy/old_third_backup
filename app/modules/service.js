@@ -2,7 +2,6 @@ const {dialog} = require('electron');
 const service = require('../service');
 const store = require('electron-store');
 
-
 let obj = {
     config: new store({name: 'service'}),
     default_config: {
@@ -19,21 +18,17 @@ let obj = {
     }
 };
 
-
 function config() {
     return obj.config.store;
 }
-
 
 function set_config(config_object) {
     obj.config.store = config_object;
 }
 
-
 function reset_config() {
     obj.config.store = obj.default_config;
 }
-
 
 async function start() {
     service.start({
@@ -47,7 +42,6 @@ async function start() {
     });
 }
 
-
 function _initialize() {
     if (0 === obj.config.sizez) {
         reset_config();
@@ -56,7 +50,6 @@ function _initialize() {
         start();
     }
 }
-
 
 module.exports = {
     start,
@@ -67,4 +60,3 @@ module.exports = {
     reset_config,
     _initialize,
 };
-

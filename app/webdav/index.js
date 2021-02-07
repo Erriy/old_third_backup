@@ -1,17 +1,30 @@
 const webdav = require('webdav-server').v2;
-const neofs = require('./neofs');
 
-const server = new webdav.WebDAVServer({
-    rootFileSystem: new neofs.filesystem()
-    // rootFileSystem: new webdav.PhysicalFileSystem('/home/erriy/Downloads/')
-});
+let obj = {
+    server: null,
+};
 
-server.start(() => console.log('READY'));
+function stop() {
+    if(obj.server) {
+        obj.server.stop();
+        obj.server = null;
+    }
+}
 
-// todo 网络资源映射，比如网站视频资源等
+function start({
+    host='localhost',
+    port=63389,
+}) {
+    stop();
+    obj.server = new webdav.WebDAVServer({
+        hostname: host,
+        port: port,
+        // rootFileSystem: new neofs.filesystem(),
+    });
+    obj.server.start();
+}
 
-/**
- * windows 挂载webdav
- *      - net use z: http://localhost:1900/
- *
- */
+module.exports = {
+    start,
+    stop,
+};

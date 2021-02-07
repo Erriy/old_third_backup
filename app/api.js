@@ -5,7 +5,6 @@ const log = require('electron-log');
 const fs = require('fs');
 const path=require('path');
 
-
 function regist_api_modules(modules_path) {
     fs.readdirSync(modules_path).forEach((file)=>{
         if(file.endsWith('.js')) {
@@ -21,7 +20,6 @@ function regist_api_modules(modules_path) {
     });
 }
 
-
 function initialize() {
     let __start = new Date();
     regist_api_modules(path.join(__dirname, 'modules'));
@@ -29,8 +27,6 @@ function initialize() {
     log.info(`app api 注册完成, 耗时 ${(__end - __start)/1000} s`);
 }
 
-
 module.exports = {
     initialize,
 };
-

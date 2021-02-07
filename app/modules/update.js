@@ -5,7 +5,6 @@ const log = require('electron-log');
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
-
 // autoUpdater.on('checking-for-update', () => {
 //     log.info('Checking for update...');
 // });
@@ -31,13 +30,10 @@ autoUpdater.on('download-progress', (progressObj) => {
 //     log.info('Update downloaded');
 // });
 
-
 function check() {
     autoUpdater.checkForUpdatesAndNotify();
 }
 
-
 module.exports = {
     check,
 };
-

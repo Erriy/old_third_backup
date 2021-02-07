@@ -4,11 +4,9 @@ const {
 } = require('electron');
 const sys_path = require('path');
 
-
 let obj = {
     debug: process.env.DEBUG,
 };
-
 
 // 内嵌浏览器的示例代码，文档： https://www.electronjs.org/docs/api/browser-view
 // const view = new BrowserView()
@@ -54,11 +52,9 @@ function create(path='') {
     }
 }
 
-
 function list() {
     return BrowserWindow.getAllWindows();
 }
-
 
 function hide() {
     let e = arguments[arguments.length - 1];
@@ -66,10 +62,8 @@ function hide() {
     win.hide();
 }
 
-
 module.exports = {
     create,
     list,
     hide,
 };
-

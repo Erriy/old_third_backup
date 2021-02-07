@@ -7,4 +7,3 @@ exec(`git tag v${process.env.npm_package_version}`, (err, stdout, stderr) => {
     }
     exec('git push --tags');
 });
-

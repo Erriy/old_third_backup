@@ -2,10 +2,8 @@ const express = require('express');
 const router = express.Router();
 require('express-async-errors');
 
-
 const dumps = d=>(encodeURIComponent(JSON.stringify(d)).replace('\'', '%27'));
 const loads = s=>(JSON.parse(decodeURIComponent(s.replace('%27', '\''))));
-
 
 router.put('', async(req, res)=>{
     // fixme: 防注入
@@ -21,7 +19,6 @@ router.put('', async(req, res)=>{
     await res.neo.run(cql);
     return res.build();
 });
-
 
 router.get('', async(req, res)=>{
     // fixme: 防注入
@@ -70,7 +67,6 @@ router.get('', async(req, res)=>{
     });
 });
 
-
 router.delete('/:seedid', async(req, res)=>{
     let cql = `
         match (s:seed) where s.seedid='${req.params.seedid}' detach delete s
@@ -78,7 +74,6 @@ router.delete('/:seedid', async(req, res)=>{
     await res.neo.run(cql);
     return res.build();
 });
-
 
 module.exports = {
     async router(neo4j_session) {
@@ -91,4 +86,3 @@ module.exports = {
         return router;
     }
 };
-

@@ -1,6 +1,5 @@
 const axios = require('axios').default;
 
-
 async function _request({
     method='',
     service='',
@@ -20,7 +19,6 @@ async function _request({
             .catch(e=>reject(e.response?e.response.data.message:e.message));
     });
 }
-
 
 async function save({
     id='',
@@ -48,7 +46,6 @@ async function save({
     });
 }
 
-
 function search({
     service='',
     key='',
@@ -64,7 +61,6 @@ function search({
     });
 }
 
-
 function _delete({
     service='',
     id=''
@@ -76,10 +72,8 @@ function _delete({
     });
 }
 
-
 module.exports = {
     save,
     search,
     delete:_delete,
 };
-

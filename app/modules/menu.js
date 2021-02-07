@@ -5,7 +5,6 @@ const {
 const {check:check_update} = require('./update');
 const service = require('./service');
 
-
 function isenabled(i) {
     if(i && typeof(i) === 'string') {
         return -1 === i.indexOf('disable');
@@ -14,7 +13,6 @@ function isenabled(i) {
         return true;
     }
 }
-
 
 function isvisible(i) {
     if(i && typeof(i) === 'string') {
@@ -25,7 +23,6 @@ function isvisible(i) {
     }
 }
 
-
 // function ischecked(i, value) {
 //     if(i && typeof(i) === 'string') {
 //         return -1 !== i.indexOf(value);
@@ -34,7 +31,6 @@ function isvisible(i) {
 //         return false;
 //     }
 // }
-
 
 function update({
     seed=true,
@@ -204,8 +200,6 @@ function update({
     win.setMenu(menu);
 }
 
-
 module.exports = {
     update,
 };
-

@@ -3,9 +3,7 @@ const VueRouter = require('vue-router').default;
 const list = require('../views/list.vue').default;
 const test = require('@/views/test.vue').default;
 
-
 Vue.use(VueRouter);
-
 
 const routes = [
     {
@@ -35,4 +33,3 @@ const router = new VueRouter({
 });
 
 module.exports = router;
-

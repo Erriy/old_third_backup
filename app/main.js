@@ -13,18 +13,15 @@ const window = require('./modules/window');
 const update = require('./modules/update');
 const service = require('./modules/service');
 
-
 let obj = {
     tray: null,
 };
-
 
 function auto_check_update() {
     schedule.scheduleJob('0 0 */3 * * *', ()=>{
         update.check();
     });
 }
-
 
 function tray_init() {
     obj.tray = new Tray(nativeImage.createFromPath(path.join(__dirname, '../dist/favicon.ico')));
@@ -65,7 +62,6 @@ function tray_init() {
     });
 }
 
-
 function regist_global_shortcut() {
     // fixme：mac系统上command和super为同一按键，修改默认为option
     // todo 修改根据配置文件进行绑定
@@ -79,7 +75,6 @@ function regist_global_shortcut() {
         window.create('/seed');
     });
 }
-
 
 if(!app.requestSingleInstanceLock()) {
     // 已经有启动了，则退出
@@ -106,4 +101,3 @@ else {
     // 窗口全部关闭也不退出
     app.on('window-all-closed', e => e.preventDefault() );
 }
-

@@ -6,12 +6,10 @@ const Antd = require('ant-design-vue').default;
 require('ant-design-vue/dist/antd.css');
 const ScrollLoader = require('vue-scroll-loader').default;
 
-
 Vue.config.productionTip = false;
 Vue.use(api);
 Vue.use(Antd);
 Vue.use(ScrollLoader);
-
 
 Vue.prototype.$common = {
     service: 'http://localhost:6952',
@@ -34,9 +32,7 @@ Vue.prototype.$common = {
     }
 };
 
-
 new Vue({
     router,
     render: function (h) { return h(App); }
 }).$mount('#app');
-

@@ -4,7 +4,6 @@ const neo4j_driver = require('neo4j-driver');
 const log = require('electron-log');
 const {router: seed_router} = require('./seed');
 
-
 let obj = {
     server: null,
     neo: null,
@@ -22,7 +21,6 @@ async function stop() {
         obj.server = null;
     }
 }
-
 
 async function start({
     service={
@@ -98,15 +96,12 @@ async function start({
     obj.server = app.listen(service.port||6952, service.host||'127.0.0.1');
 }
 
-
 function running() {
     return Boolean(obj.server);
 }
-
 
 module.exports = {
     start,
     stop,
     running,
 };
-
