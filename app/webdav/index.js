@@ -1,5 +1,6 @@
 const webdav = require('webdav-server').v2;
 const neofs = require('./neofs');
+const fs = require('fs');
 
 let obj = {
     server: null,
@@ -19,7 +20,7 @@ async function start({
     uri='neo4j://127.0.0.1:7687',
     username='neo4j',
     password='neo4j',
-    fpath='./data/files',
+    fpath='/tmp/third/files',
 }={}) {
     await stop();
     await neofs.prepare(uri, username, password, fpath);
@@ -33,10 +34,12 @@ async function start({
 }
 
 if (typeof require !== 'undefined' && require.main === module) {
+    let fpath = '/tmp/third/files';
+    fs.mkdirSync(fpath, {recursive: true});
     start({
         uri: 'neo4j://127.0.0.1:7687',
         password:  'ub1JOnQcuV^rfBsr5%Ek',
-        fpath: '/tmp'
+        fpath
     }).then();
 }
 
