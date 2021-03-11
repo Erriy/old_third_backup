@@ -7,13 +7,15 @@ const neo4j_driver = require('neo4j-driver');
 const fs = require('fs');
 const {dirname, basename} = require('path');
 const util = require('util');
-const fs_stat = util.promisify(fs.stat);
-const fs_rename = util.promisify(fs.rename);
 const sys_path = require('path');
 const tempfile = require('tempfile');
 const { isText } = require('istextorbinary');
 const crypto = require('crypto');
 const {Readable} = require('stream');
+
+const fs_stat = util.promisify(fs.stat);
+const fs_rename = util.promisify(fs.rename);
+const fs_readFile = util.promisify(fs.readFile);
 
 // todo 当前忽略了sha256冲突的情况，当大量数据存在时，需要判断如果sha256冲突了怎么保存文件
 // fixme 多文件指向同一个sha256，sha256引用计数
@@ -168,26 +170,25 @@ function filesystem()
                 if (!data) {
                     data = '';
                 }
-                let rstream = null;
-                rstream = new Readable();
-                rstream.push(data);
-                rstream.push(null);
-                return callback(null, rstream);
+                return callback(null, Readable.from([data]));
             }
         });
     };
 
     r._openWriteStream = (path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/)=>{
         let filepath = tempfile();
+        console.log('open write stream', path, filepath);
         let wstream = fs.createWriteStream(filepath);
         wstream.on('finish', async()=>{
             // fixme 删除历史sha256和文件或data字段
             let size = (await fs_stat(filepath)).size;
-            if (size < obj.max_text_length && isText(filepath)) {
-                let text = await fs.readFile(filepath, 'utf8');
+            console.log(path, filepath, size);
+            if (0 == size || (size < obj.max_text_length)) {
+                let text = await fs_readFile(filepath, 'utf-8');
                 await obj.neo.run(`
-                    ${find_entry_cql(path.toString())} set entry.data = '$data'
+                    ${find_entry_cql(path.toString())} set entry.data = $data
                 `, {data: text});
+                fs.unlink(filepath, ()=>{});
             }
             else {
                 let sha256 = crypto.createHash('sha256');
@@ -209,6 +210,7 @@ function filesystem()
     };
 
     r._move = (pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/)=>{
+        console.log('move', pathFrom, pathTo);
         obj.neo.run(`
             ${find_entry_cql(pathTo.toString())} return entry
         `).then(r=>{
