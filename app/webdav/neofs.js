@@ -17,6 +17,8 @@ const fs_stat = util.promisify(fs.stat);
 const fs_rename = util.promisify(fs.rename);
 const fs_readFile = util.promisify(fs.readFile);
 
+// todo 全部保存为文件，sha256引用计数
+
 // todo 当前忽略了sha256冲突的情况，当大量数据存在时，需要判断如果sha256冲突了怎么保存文件
 // fixme 多文件指向同一个sha256，sha256引用计数
 
