@@ -131,6 +131,7 @@ function filesystem()
     };
 
     r._delete = (path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/)=>{
+        console.log('delete', path);
         obj.neo.run(`
             ${find_entry_cql(path.toString())}
             match (s:seed)-[:in*0..]->(entry)
@@ -144,7 +145,7 @@ function filesystem()
                     if(null == s256) {
                         return;
                     }
-                    fs.unlink(sys_path.join(obj.fpath, s256), ()=>{});
+                    // fs.unlink(sys_path.join(obj.fpath, s256), ()=>{});
                 });
             }
             if (path.toString() in r.resources) {
@@ -163,6 +164,7 @@ function filesystem()
             }
             let sha256 = result.records[0].get('sha256');
             let data = result.records[0].get('data');
+            console.log('read', data);
             if(sha256) {
                 return callback(null, fs.createReadStream(sys_path.join(obj.fpath, sha256)));
             }
@@ -182,9 +184,10 @@ function filesystem()
         wstream.on('finish', async()=>{
             // fixme 删除历史sha256和文件或data字段
             let size = (await fs_stat(filepath)).size;
-            console.log(path, filepath, size);
             if (0 == size || (size < obj.max_text_length)) {
+                console.log(path, filepath, size);
                 let text = await fs_readFile(filepath, 'utf-8');
+                console.log(text);
                 await obj.neo.run(`
                     ${find_entry_cql(path.toString())} set entry.data = $data
                 `, {data: text});

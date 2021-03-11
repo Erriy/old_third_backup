@@ -37,6 +37,7 @@ if (typeof require !== 'undefined' && require.main === module) {
     let fpath = '/tmp/third/files';
     fs.mkdirSync(fpath, {recursive: true});
     start({
+        host:'0.0.0.0',
         uri: 'neo4j://127.0.0.1:7687',
         password:  'ub1JOnQcuV^rfBsr5%Ek',
         fpath
