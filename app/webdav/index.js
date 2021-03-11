@@ -1,77 +1,46 @@
 const webdav = require('webdav-server').v2;
-const os = require('os');
-const open = require('open');
-const {spawn} = require('child_process');
-const sys_path = require('path');
+const neofs = require('./neofs');
 
 let obj = {
     server: null,
-    options: {
-        host: 'localhost',
-        port: 63389,
-    },
 };
 
-function stop() {
+async function stop() {
     if(obj.server) {
         obj.server.stop();
         obj.server = null;
     }
+    await neofs.cleanup();
 }
 
-const open_handler = {
-    linux: async (path)=>{
-        // gio mount dav://localhost:1900/
-        // gentoo : gio in dev-libs/glib
-        let file = sys_path.join(`/var/run/user/${process.getuid()}/gvfs/dav:host=localhost,port=${obj.options.port},ssl=false/`, path);
-        console.log(file);
-        await open(file);
-    },
-    win32: async()=>{
-        // todo win32 open handler
-    },
-    mac: async()=>{
-        // todo mac open handler
-    },
-};
-
-const mount_handler = {
-    linux: ()=>{
-        spawn('/usr/bin/gio', ['mount', `dav://localhost:${obj.options.port}`]);
-    },
-    win32: async()=>{
-        // todo win32 mount handler
-    },
-    mac: async()=>{
-        // todo mac mount handler
-    },
-};
-
-const webdav_open = open_handler[os.platform()];
-const mount = mount_handler[os.platform()];
-
-function start({
+async function start({
     host='localhost',
     port=63389,
+    uri='neo4j://127.0.0.1:7687',
+    username='neo4j',
+    password='neo4j',
+    fpath='./data/files',
 }={}) {
-    stop();
+    await stop();
+    await neofs.prepare(uri, username, password, fpath);
+
     obj.server = new webdav.WebDAVServer({
         hostname: host,
         port: port,
-        // rootFileSystem: new neofs.filesystem(),
+        rootFileSystem: new neofs.filesystem(),
     });
-    obj.options.host = host;
-    obj.options.port = port;
-    obj.server.start(()=>mount());
+    obj.server.start();
 }
 
 if (typeof require !== 'undefined' && require.main === module) {
-    start();
-    // webdav_open('/test.md');
+    start({
+        uri: 'neo4j://127.0.0.1:7687',
+        password:  'ub1JOnQcuV^rfBsr5%Ek',
+        fpath: '/tmp'
+    }).then();
 }
 
 module.exports = {
     start,
     stop,
-    open: webdav_open,
 };
