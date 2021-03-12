@@ -132,7 +132,6 @@ function filesystem()
     };
 
     r._delete = (path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/)=>{
-        console.log('delete', path);
         obj.neo.run(`
             ${find_entry_cql(path.toString())}
             match (s:seed)-[:in*0..]->(entry)
@@ -194,7 +193,6 @@ function filesystem()
     };
 
     r._move = (pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/)=>{
-        console.log('move', pathFrom, pathTo);
         obj.neo.run(`
             ${find_entry_cql(pathTo.toString())} return entry
         `).then(r=>{
