@@ -1,6 +1,8 @@
 /**
  * * webdav-server 文档 https://github.com/OpenMarshal/npm-WebDAV-Server/wiki
  * * neo4j-driver 文档 https://neo4j.com/docs/api/javascript-driver/current/
+ *
+ * todo 文件以sha256命名，文件引用计数，计数为0时延时删除
  */
 const webdav = require('webdav-server').v2;
 const neo4j_driver = require('neo4j-driver');
@@ -8,18 +10,13 @@ const fs = require('fs');
 const {dirname, basename} = require('path');
 const util = require('util');
 const sys_path = require('path');
-const tempfile = require('tempfile');
-const crypto = require('crypto');
 const {Readable} = require('stream');
+const {v1:uuidv1} = require('uuid');
 
 const fs_stat = util.promisify(fs.stat);
-const fs_rename = util.promisify(fs.rename);
-const fs_readFile = util.promisify(fs.readFile);
-
-// todo 全部保存为文件，sha256引用计数
-
-// todo 当前忽略了sha256冲突的情况，当大量数据存在时，需要判断如果sha256冲突了怎么保存文件
-// fixme 多文件指向同一个sha256，sha256引用计数
+const fs_open = util.promisify(fs.open);
+const fs_close = util.promisify(fs.close);
+const fs_exists = util.promisify(fs.exists);
 
 let obj = {
     neo: {
@@ -118,17 +115,20 @@ function filesystem()
     // 初始化根目录节点
     obj.neo.run('merge (:seed{fs_name: \'/\'})').then();
 
-    r._create = (path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/)=>{
+    r._create = async (path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/)=>{
         let name = basename(path.toString());
-        let typeinfo = ctx.type.isDirectory ? '' : ', fs_type:"file"';
+        let typeinfo = '';
+        if (!ctx.type.isDirectory) {
+            let fs_fid = uuidv1();
+            typeinfo = `, fs_type:"file", fs_fid: '${fs_fid}'`;
+        }
 
-        obj.neo.run(`
+        await obj.neo.run(`
             ${find_entry_cql(dirname(path.toString()))}
             create (s:seed{fs_name: $fs_name ${typeinfo}})-[:in]->(entry)
-        `, {fs_name: name}).then(s=>{
-            r.resources[path.toString()] = new fs_resource();
-            return callback(null);
-        });
+        `, {fs_name: name});
+        r.resources[path.toString()] = new fs_resource();
+        return callback(null);
     };
 
     r._delete = (path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/)=>{
@@ -136,17 +136,17 @@ function filesystem()
         obj.neo.run(`
             ${find_entry_cql(path.toString())}
             match (s:seed)-[:in*0..]->(entry)
-            with s, s.sha256 as sha256
+            with s, s.fs_fid as fs_fid
             detach delete s
-            return sha256
+            return fs_fid
         `).then(result=>{
             if (0 < result.records.length) {
                 result.records.forEach(record=>{
-                    let s256 = record.get('sha256');
-                    if(null == s256) {
+                    let fs_fid = record.get('fs_fid');
+                    if(null == fs_fid) {
                         return;
                     }
-                    // fs.unlink(sys_path.join(obj.fpath, s256), ()=>{});
+                    fs.unlink(sys_path.join(obj.fpath, fs_fid), ()=>{});
                 });
             }
             if (path.toString() in r.resources) {
@@ -156,58 +156,38 @@ function filesystem()
         });
     };
 
-    r._openReadStream = (path /* : Path*/, ctx /* : OpenReadStreamInfo*/, callback /* : ReturnCallback<Readable>*/)=>{
-        obj.neo.run(`
-            ${find_entry_cql(path.toString())} return entry.sha256 as sha256, entry.data as data
-        `).then(result=>{
-            if (0 === result.records.length ) {
-                return callback(webdav.Errors.ResourceNotFound);
-            }
-            let sha256 = result.records[0].get('sha256');
-            let data = result.records[0].get('data');
-            console.log('read', data);
-            if(sha256) {
-                return callback(null, fs.createReadStream(sys_path.join(obj.fpath, sha256)));
-            }
-            else {
-                if (!data) {
-                    data = '';
-                }
-                return callback(null, Readable.from([data]));
-            }
-        });
+    r._openReadStream = async (path /* : Path*/, ctx /* : OpenReadStreamInfo*/, callback /* : ReturnCallback<Readable>*/)=>{
+        let result = await obj.neo.run(`
+            ${find_entry_cql(path.toString())} return entry.fs_fid as fs_fid
+        `);
+        if (0 === result.records.length ) {
+            return callback(webdav.Errors.ResourceNotFound);
+        }
+        let fs_fid = result.records[0].get('fs_fid');
+        let filepath = sys_path.join(obj.fpath, fs_fid);
+        if (await fs_exists(filepath)) {
+            return callback(null, fs.createReadStream(filepath));
+        }
+        else {
+            return callback(null, Readable.from(['']));
+        }
     };
 
-    r._openWriteStream = (path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/)=>{
-        let filepath = tempfile();
-        console.log('open write stream', path, filepath);
+    r._openWriteStream = async (path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/)=>{
+        let result = await obj.neo.run(`
+            ${find_entry_cql(path.toString())} return entry.fs_fid as fs_fid
+        `);
+        if (0 === result.records.length ) {
+            return callback(webdav.Errors.ResourceNotFound);
+        }
+        let fs_fid = result.records[0].get('fs_fid');
+        let filepath = sys_path.join(obj.fpath, fs_fid);
+        if (!await fs_exists(filepath)) {
+            await fs_close(await fs_open(filepath, 'w'));
+        }
         let wstream = fs.createWriteStream(filepath);
         wstream.on('finish', async()=>{
-            // fixme 删除历史sha256和文件或data字段
-            let size = (await fs_stat(filepath)).size;
-            if (0 == size || (size < obj.max_text_length)) {
-                console.log(path, filepath, size);
-                let text = await fs_readFile(filepath, 'utf-8');
-                console.log(text);
-                await obj.neo.run(`
-                    ${find_entry_cql(path.toString())} set entry.data = $data
-                `, {data: text});
-                fs.unlink(filepath, ()=>{});
-            }
-            else {
-                let sha256 = crypto.createHash('sha256');
-                let rs = fs.createReadStream(filepath);
-                rs.on('data', (chunk)=>{
-                    sha256.update(chunk);
-                });
-                rs.on('end', async ()=>{
-                    let s256_hex = sha256.digest('hex').toUpperCase();
-                    await fs_rename(filepath, sys_path.join(obj.fpath, s256_hex));
-                    await obj.neo.run(`
-                        ${find_entry_cql(path.toString())} set entry.sha256='${s256_hex}'
-                    `);
-                });
-            }
+            // todo 提取内容建立到全文索引字段
         });
 
         callback(null, wstream);
@@ -238,29 +218,22 @@ function filesystem()
         });
     };
 
-    r._size = (path /* : Path*/, ctx /* : SizeInfo*/, callback /* : ReturnCallback<number>*/)=>{
-        obj.neo.run(`
-            ${find_entry_cql(path.toString())}
-            return entry.sha256 as sha256, size(entry.data) as data_size`
-        ).then(async r=>{
-            let size = 0;
-            if (r.records.length > 0) {
-                let data_size = r.records[0].get('data_size');
-                let sha256 = r.records[0].get('sha256');
-                if (data_size) {
-                    size = data_size;
-                }
-                else {
-                    try {
-                        size = (await fs_stat(sys_path.join(obj.fpath, sha256))).size;
-                    }
-                    catch(e) {
-                        size = 0;
-                    }
-                }
+    r._size = async (path /* : Path*/, ctx /* : SizeInfo*/, callback /* : ReturnCallback<number>*/)=>{
+        let result = await obj.neo.run(`
+            ${find_entry_cql(path.toString())} return entry.fs_fid as fs_fid
+        `);
+        let size = 0;
+        if (result.records.length > 0) {
+            let fs_fid = result.records[0].get('fs_fid');
+            try {
+                size = (await fs_stat(sys_path.join(obj.fpath, fs_fid))).size;
             }
-            return callback(null, size);
-        });
+            catch(e) {
+                size = 0;
+            }
+        }
+
+        return callback(null, size);
     };
 
     r._type = (path /* : Path*/, ctx /* : TypeInfo*/, callback /* : ReturnCallback<ResourceType>*/)=>{

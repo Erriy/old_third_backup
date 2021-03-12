@@ -67,7 +67,6 @@
         "node-key-sender": "^1.0.11",
         "node-schedule": "^1.3.2",
         "open": "^7.4.0",
-        "tempfile": "^3.0.0",
         "uuid": "^8.3.2",
         "vditor": "^3.7.7",
         "vue": "^2.6.11",
