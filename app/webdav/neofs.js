@@ -9,7 +9,6 @@ const {dirname, basename} = require('path');
 const util = require('util');
 const sys_path = require('path');
 const tempfile = require('tempfile');
-const { isText } = require('istextorbinary');
 const crypto = require('crypto');
 const {Readable} = require('stream');
 
