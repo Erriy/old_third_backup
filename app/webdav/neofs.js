@@ -103,6 +103,7 @@ function fs_resource(data /* ?: any */)
 // File system
 function filesystem()
 {
+    // todo 根据ctx.context.user.username判断用户并返回不同数据
     const r = new webdav.FileSystem(new fs_serializer());
     r.constructor = filesystem;
     r.resources = {
@@ -232,7 +233,6 @@ function filesystem()
     };
 
     r._type = (path /* : Path*/, ctx /* : TypeInfo*/, callback /* : ReturnCallback<ResourceType>*/)=>{
-        console.log(ctx.context.user.username);
         obj.neo.run(
             `${find_entry_cql(path.toString())} return entry.fs_type`
         ).then(t=>{
@@ -280,6 +280,28 @@ async function prepare(uri, username, password, fpath/* 文件保存路径 */, m
     }
 }
 
+function authentication() {
+    const um = new webdav.SimpleUserManager();
+
+    um.getUserByName = async (name, callback)=>{
+        // todo 在数据库中查询用户名
+        if (name === 'erriy') {
+            return callback(null, new webdav.SimpleUser('erriy', '123456', false,false));
+        }
+        return callback(webdav.Errors.UserNotFound);
+    };
+
+    um.getUserByNamePassword = (name, password, callback)=>{
+        // todo 在数据库中查询用户名和密码
+        if (name === 'erriy' && password === '123456') {
+            return callback(null, new webdav.SimpleUser('erriy', '123456', false,false));
+        }
+        return callback(webdav.Errors.UserNotFound);
+    };
+
+    return new webdav.HTTPDigestAuthentication(um, 'third webdav service');
+}
+
 function cleanup() {
     obj.neo.close();
     obj.fpath = null;
@@ -288,5 +310,6 @@ function cleanup() {
 module.exports = {
     prepare,
     filesystem,
+    authentication,
     cleanup
 };

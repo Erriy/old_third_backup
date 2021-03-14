@@ -29,11 +29,14 @@ async function start({
         hostname: host,
         port: port,
         rootFileSystem: new neofs.filesystem(),
+        httpAuthentication: neofs.authentication(),
+        requireAuthentification: true,
     });
-    obj.server.start();
+    obj.server.start(()=>{console.log('ready');});
 }
 
 if (typeof require !== 'undefined' && require.main === module) {
+
     let fpath = '/tmp/third/files';
     fs.mkdirSync(fpath, {recursive: true});
     start({
