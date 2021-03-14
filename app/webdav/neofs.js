@@ -103,9 +103,6 @@ function fs_resource(data /* ?: any */)
 // File system
 function filesystem()
 {
-    /**
-     * * 文本文件且内容长度在max_text_length以内则数据保存至数据库中并建立全文索引，否则保存为文件
-     */
     const r = new webdav.FileSystem(new fs_serializer());
     r.constructor = filesystem;
     r.resources = {
@@ -235,6 +232,7 @@ function filesystem()
     };
 
     r._type = (path /* : Path*/, ctx /* : TypeInfo*/, callback /* : ReturnCallback<ResourceType>*/)=>{
+        console.log(ctx.context.user.username);
         obj.neo.run(
             `${find_entry_cql(path.toString())} return entry.fs_type`
         ).then(t=>{
