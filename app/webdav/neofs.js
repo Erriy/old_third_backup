@@ -124,7 +124,7 @@ function filesystem()
 
         await obj.neo.run(`
             ${find_entry_cql(dirname(path.toString()))}
-            create (s:seed{fs_name: $fs_name ${typeinfo}})-[:in]->(entry)
+            create (s:seed{fs_name: $fs_name ${typeinfo}, id: '${uuidv1()}'})-[:in]->(entry)
         `, {fs_name: name});
         r.resources[path.toString()] = new fs_resource();
         return callback(null);
