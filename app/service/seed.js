@@ -42,6 +42,7 @@ router.get('', async(req, res) => {
                 return {
                     name: _.properties.fs_name,
                     id: _.properties.id,
+                    type: _.properties.fs_type,
                 };
             })
         }

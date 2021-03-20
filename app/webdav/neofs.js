@@ -112,7 +112,7 @@ function filesystem()
     };
 
     // 初始化根目录节点
-    obj.neo.run('merge (:seed{fs_name: \'/\'})').then();
+    obj.neo.run(`merge (:seed{fs_name: "/", fs_type: "directory", id: '${uuidv1()}'})`).then();
 
     r._create = async (path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/)=>{
         let name = basename(path.toString());
