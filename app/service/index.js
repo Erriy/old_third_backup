@@ -100,6 +100,14 @@ function running() {
     return Boolean(obj.server);
 }
 
+if (typeof require !== 'undefined' && require.main === module) {
+    start({
+        neo4j: {
+            password: 'ub1JOnQcuV^rfBsr5%Ek'
+        }
+    }).then();
+}
+
 module.exports = {
     start,
     stop,
