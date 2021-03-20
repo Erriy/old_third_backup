@@ -37,7 +37,13 @@ router.get('', async(req, res) => {
     return res.build({
         data: {
             total,
-            list: result.records.map(s=>(s.get('s').properties.fs_name))
+            list: result.records.map(s=>{
+                let _ = s.get('s');
+                return {
+                    name: _.properties.fs_name,
+                    id: _.properties.id,
+                };
+            })
         }
     });
 });
