@@ -49,6 +49,12 @@ router.get('', async(req, res) => {
     });
 });
 
+router.delete('/:seedid', async(req, res)=>{
+    // todo 延迟删除，函数与webdav抽象为同一套
+    await res.neo.run('match (s:seed)-[:in*0..]->(n:seed) where n.id=$seedid detach delete s,n', {seedid:req.params.seedid});
+    return res.build();
+});
+
 module.exports = {
     async router(neo4j_session) {
         try{

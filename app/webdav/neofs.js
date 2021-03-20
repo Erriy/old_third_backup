@@ -131,6 +131,7 @@ function filesystem()
     };
 
     r._delete = (path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/)=>{
+        // todo 延迟删除
         obj.neo.run(`
             ${find_entry_cql(path.toString())}
             match (s:seed)-[:in*0..]->(entry)
