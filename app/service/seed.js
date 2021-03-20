@@ -55,6 +55,10 @@ router.delete('/:seedid', async(req, res)=>{
     return res.build();
 });
 
+router.put('', async(req, res)=>{
+    // todo 创建连接
+});
+
 module.exports = {
     async router(neo4j_session) {
         try{
