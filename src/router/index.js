@@ -2,13 +2,14 @@ const Vue = require('vue').default;
 const VueRouter = require('vue-router').default;
 const list = require('../views/list.vue').default;
 const test = require('@/views/test.vue').default;
+const fm = require('../views/fm.vue').default;
 
 Vue.use(VueRouter);
 
 const routes = [
     {
         path: '/',
-        component: test
+        component: fm
     },
     {
         path: '/list',
