@@ -49,15 +49,6 @@ object格式seed(包括元信息+data内容)
 }
 ```
 
-### 数据库字段
-
-- ts_create
-- ts_update
-- fs_name
-- fs_type
-- seed_block # 原始数据
-- search_fulltext # 全文索引字段
-
 ### 服务器选择
 
 包括本机服务器、本地服务器和手动添加的服务器
