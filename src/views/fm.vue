@@ -40,6 +40,7 @@ export default {
                 page: 1,
                 page_size: 20,
                 key: '',
+                type: '',
             },
             table: {
                 columns: [
@@ -100,7 +101,8 @@ export default {
     },
     methods: {
         table_change(pagination, filters, sorter) {
-
+            this.load.type = filters.type.join(',');
+            this.load_more(true);
         },
         load_more(refresh=false) {
             if(this.load.loading) {
@@ -116,6 +118,7 @@ export default {
                 page: this.load.page,
                 page_size: this.load.page_size,
                 key: this.load.key,
+                type: this.load.type
             }).then(async res=>{
                 if (0 === res.data.list.length) {
                     this.load.no_more = true;

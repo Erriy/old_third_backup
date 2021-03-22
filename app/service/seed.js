@@ -13,7 +13,7 @@ router.get('', async(req, res) => {
     let page = Number(req.query.page) || 1;
     let page_size = Number(req.query.page_size) || 20;
     let key = req.query.key || '';
-    let type = req.query.type || '';
+    let type = (req.query.type || '').split(',').filter(w=>w.length > 0);
 
     page = page>0?page:1;
     page_size = page_size>0?page_size:20;
@@ -22,13 +22,18 @@ router.get('', async(req, res) => {
     if(key.length > 0) {
         full_text_search = 'CALL db.index.fulltext.queryNodes("seed.fulltext", "$key") YIELD node as s, score';
     }
+    if(type.length > 0) {
+        full_text_search += ' where s.type in $type ';
+    }
 
-    let result = await res.neo.run(`
+    let cql = `
         ${full_text_search}
         with count(s) as total
         ${full_text_search}
         return distinct s, total order by s.update_ts desc skip ${(page - 1)*page_size} limit ${page_size}
-    `, {key});
+    `;
+    console.log(cql);
+    let result = await res.neo.run(cql, {key, type});
 
     let total = 0;
     if(result.records.length > 0) {

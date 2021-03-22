@@ -24,10 +24,11 @@ async function search({
     key='',
     page=1,
     page_size=20,
+    type=''
 }={}) {
     return _request({
         method: 'GET',
-        path: `/seed?page=${page}&page_size=${page_size}&key=${encodeURIComponent(key)}`
+        path: `/seed?page=${page}&page_size=${page_size}&key=${encodeURIComponent(key)}&type=${type}`
     });
 }
 
