@@ -1,14 +1,14 @@
 <template>
     <div>
         <a-input
-            placeholder="全文内容搜索，回车后搜索"
             v-model="load.key"
+            placeholder="全文内容搜索，回车后搜索"
             @pressEnter="load_more(true)"
         />
         <a-table
             :columns="table.columns"
             :data-source="table.list"
-            :pagination='false'
+            :pagination="false"
             @change="table_change"
         />
         <scroll-loader
