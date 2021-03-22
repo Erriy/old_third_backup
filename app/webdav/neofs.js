@@ -119,7 +119,7 @@ function filesystem()
         let typeinfo = ', type: "webdav.directory"';
         if (!ctx.type.isDirectory) {
             let uri = uuidv1();
-            typeinfo = `, type:"webdav.other", uri: '${uri}'`;
+            typeinfo = `, type:"webdav.empty", uri: '${uri}'`;
         }
 
         await obj.neo.run(`
@@ -186,6 +186,7 @@ function filesystem()
         }
         let wstream = fs.createWriteStream(filepath);
         wstream.on('finish', async()=>{
+            // todo 修改type字段
             // todo 提取内容建立到全文索引字段
         });
 

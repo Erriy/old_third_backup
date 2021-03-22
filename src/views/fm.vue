@@ -21,6 +21,16 @@
 </template>
 
 <script>
+const type_map = {
+    'webdav.directory': '文件夹',
+    'webdav.text': '文本',
+    'webdav.audio': '音频',
+    'webdav.video': '视频',
+    'webdav.empty': '空文件',
+    'webdav.other': '其他',
+    'link': '链接',
+};
+
 export default {
     data() {
         return {
@@ -42,29 +52,37 @@ export default {
                         dataIndex: 'type',
                         filters: [
                             {
+                                text: '文件夹',
+                                value: 'webdav.directory'
+                            },
+                            {
                                 text: '文本',
-                                value: 'text',
+                                value: 'webdav.text',
                             },
                             {
                                 text: '音频',
-                                value: 'audio'
+                                value: 'webdav.audio'
                             },
                             {
                                 text: '图像',
-                                value: 'image'
+                                value: 'webdav.image'
                             },
                             {
                                 text: '视频',
-                                value: 'video'
+                                value: 'webdav.video'
+                            },
+                            {
+                                text: '空文件',
+                                value: 'webdav.empty',
+                            },
+                            {
+                                text: '其他',
+                                value: 'webdav.other'
                             },
                             {
                                 text: '链接',
                                 value: 'link'
                             },
-                            {
-                                text: '其他',
-                                value: 'other'
-                            }
                         ]
                     },
                     {
@@ -104,6 +122,7 @@ export default {
                     return;
                 }
                 for(let s of res.data.list) {
+                    s.type = type_map[s.type];
                     this.table.list.push(s);
                 }
                 // this.table.list.sort((a,b)=>(a.meta.time.update.timestamp>b.meta.time.update.timestamp));

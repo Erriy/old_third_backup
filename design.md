@@ -13,7 +13,7 @@
   - fulltext: 全文搜索内容保存字段，可手动修改
   - tag: 标签列表，弱关系索引，更强的是节点与节点之间的关系
   - owner: 文件拥有者
-  - type: webdav.{directory/text/audio/image/video/other},link,other 节点内容类型
+  - type: webdav.{directory/text/audio/image/video/empty/other},link,other 节点内容类型
   - note: 备注性信息
   - name: 节点名称
   - uri: 资源定位标识符，数据实际位置
