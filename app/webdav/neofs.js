@@ -188,6 +188,9 @@ function filesystem()
         wstream.on('finish', async()=>{
             // todo 修改type字段
             // todo 提取内容建立到全文索引字段
+            // await obj.neo.run(`
+            //     ${find_entry_cql(path.toString())} set entry.fulltext=$content
+            // `, {content: '哈哈哈'});
         });
 
         callback(null, wstream);
