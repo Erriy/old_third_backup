@@ -60,7 +60,7 @@ function find_entry_cql(path, name='entry') {
     }
     entrys.push('/');
     entrys = entrys.reverse();
-    return `match ${entrys.map((e, i)=>(`(_n${i}:seed{fs_name:'${e}'})`)).join('<-[:in]-')} with _n${entrys.length-1} as ${name}`;
+    return `match ${entrys.map((e, i)=>(`(_n${i}:seed{name:'${e}'})`)).join('<-[:in]-')} with _n${entrys.length-1} as ${name}`;
 }
 
 // Serializer
@@ -112,20 +112,20 @@ function filesystem()
     };
 
     // 初始化根目录节点
-    obj.neo.run(`merge (:seed{fs_name: "/", fs_type: "directory", id: '${uuidv1()}'})`).then();
+    obj.neo.run(`merge (:seed{name: "/", type: "webdav.directory", id: '${uuidv1()}'})`).then();
 
     r._create = async (path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/)=>{
         let name = basename(path.toString());
-        let typeinfo = ', fs_type: "directory"';
+        let typeinfo = ', type: "webdav.directory"';
         if (!ctx.type.isDirectory) {
-            let fs_uri = uuidv1();
-            typeinfo = `, fs_type:"file", fs_uri: '${fs_uri}'`;
+            let uri = uuidv1();
+            typeinfo = `, type:"webdav.other", uri: '${uri}'`;
         }
 
         await obj.neo.run(`
             ${find_entry_cql(dirname(path.toString()))}
-            create (s:seed{fs_name: $fs_name ${typeinfo}, id: '${uuidv1()}'})-[:in]->(entry)
-        `, {fs_name: name});
+            create (s:seed{name: $name ${typeinfo}, id: '${uuidv1()}'})-[:in]->(entry)
+        `, {name});
         r.resources[path.toString()] = new fs_resource();
         return callback(null);
     };
@@ -135,17 +135,17 @@ function filesystem()
         obj.neo.run(`
             ${find_entry_cql(path.toString())}
             match (s:seed)-[:in*0..]->(entry)
-            with s, s.fs_uri as fs_uri
+            with s, s.uri as uri
             detach delete s
-            return fs_uri
+            return uri
         `).then(result=>{
             if (0 < result.records.length) {
                 result.records.forEach(record=>{
-                    let fs_uri = record.get('fs_uri');
-                    if(null == fs_uri) {
+                    let uri = record.get('uri');
+                    if(null == uri) {
                         return;
                     }
-                    fs.unlink(sys_path.join(obj.fpath, fs_uri), ()=>{});
+                    fs.unlink(sys_path.join(obj.fpath, uri), ()=>{});
                 });
             }
             if (path.toString() in r.resources) {
@@ -157,13 +157,13 @@ function filesystem()
 
     r._openReadStream = async (path /* : Path*/, ctx /* : OpenReadStreamInfo*/, callback /* : ReturnCallback<Readable>*/)=>{
         let result = await obj.neo.run(`
-            ${find_entry_cql(path.toString())} return entry.fs_uri as fs_uri
+            ${find_entry_cql(path.toString())} return entry.uri as uri
         `);
         if (0 === result.records.length ) {
             return callback(webdav.Errors.ResourceNotFound);
         }
-        let fs_uri = result.records[0].get('fs_uri');
-        let filepath = sys_path.join(obj.fpath, fs_uri);
+        let uri = result.records[0].get('uri');
+        let filepath = sys_path.join(obj.fpath, uri);
         if (await fs_exists(filepath)) {
             return callback(null, fs.createReadStream(filepath));
         }
@@ -174,13 +174,13 @@ function filesystem()
 
     r._openWriteStream = async (path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/)=>{
         let result = await obj.neo.run(`
-            ${find_entry_cql(path.toString())} return entry.fs_uri as fs_uri
+            ${find_entry_cql(path.toString())} return entry.uri as uri
         `);
         if (0 === result.records.length ) {
             return callback(webdav.Errors.ResourceNotFound);
         }
-        let fs_uri = result.records[0].get('fs_uri');
-        let filepath = sys_path.join(obj.fpath, fs_uri);
+        let uri = result.records[0].get('uri');
+        let filepath = sys_path.join(obj.fpath, uri);
         if (!await fs_exists(filepath)) {
             await fs_close(await fs_open(filepath, 'w'));
         }
@@ -200,8 +200,8 @@ function filesystem()
                 return callback(webdav.Errors.ResourceAlreadyExists, false);
             }
             obj.neo.run(`
-                ${find_entry_cql(pathFrom.toString())} set entry.fs_name=$fs_name
-            `, {fs_name: basename(pathTo.toString())} ).then(()=>{
+                ${find_entry_cql(pathFrom.toString())} set entry.name=$name
+            `, {name: basename(pathTo.toString())} ).then(()=>{
                 callback(null, true);
             });
         });
@@ -210,7 +210,7 @@ function filesystem()
     r._readDir = (path /* : Path*/, ctx /* : ReadDirInfo*/, callback /* : ReturnCallback<string[] | Path[]>*/)=>{
         obj.neo.run(`
             ${find_entry_cql(path.toString())}
-            match (n:seed)-[:in]->(entry) return n.fs_name
+            match (n:seed)-[:in]->(entry) return n.name
         `).then(n=>{
             return callback(null, n.records.map(x=>(x._fields[0])));
         });
@@ -218,13 +218,13 @@ function filesystem()
 
     r._size = async (path /* : Path*/, ctx /* : SizeInfo*/, callback /* : ReturnCallback<number>*/)=>{
         let result = await obj.neo.run(`
-            ${find_entry_cql(path.toString())} return entry.fs_uri as fs_uri
+            ${find_entry_cql(path.toString())} return entry.uri as uri
         `);
         let size = 0;
         if (result.records.length > 0) {
-            let fs_uri = result.records[0].get('fs_uri');
+            let uri = result.records[0].get('uri');
             try {
-                size = (await fs_stat(sys_path.join(obj.fpath, fs_uri))).size;
+                size = (await fs_stat(sys_path.join(obj.fpath, uri))).size;
             }
             catch(e) {
                 size = 0;
@@ -236,12 +236,12 @@ function filesystem()
 
     r._type = (path /* : Path*/, ctx /* : TypeInfo*/, callback /* : ReturnCallback<ResourceType>*/)=>{
         obj.neo.run(
-            `${find_entry_cql(path.toString())} return entry.fs_type`
+            `${find_entry_cql(path.toString())} return entry.type`
         ).then(t=>{
             if (0 === t.records.length) {
                 return callback(webdav.Errors.ResourceNotFound);
             }
-            callback(null, t.records[0]._fields[0]==='file' ? webdav.ResourceType.File : webdav.ResourceType.Directory);
+            callback(null, t.records[0]._fields[0]==='webdav.directory' ? webdav.ResourceType.Directory : webdav.ResourceType.File);
         });
     };
 

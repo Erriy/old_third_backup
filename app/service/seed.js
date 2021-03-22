@@ -20,7 +20,7 @@ router.get('', async(req, res) => {
 
     let full_text_search = 'match (s:seed)';
     if(key.length > 0) {
-        full_text_search = 'CALL db.index.fulltext.queryNodes("seed.full_text", "$key") YIELD node as s, score';
+        full_text_search = 'CALL db.index.fulltext.queryNodes("seed.fulltext", "$key") YIELD node as s, score';
     }
 
     let result = await res.neo.run(`
@@ -40,9 +40,9 @@ router.get('', async(req, res) => {
             list: result.records.map(s=>{
                 let _ = s.get('s');
                 return {
-                    name: _.properties.fs_name,
+                    name: _.properties.name,
                     id: _.properties.id,
-                    type: _.properties.fs_type,
+                    type: _.properties.type,
                 };
             })
         }
@@ -62,10 +62,10 @@ router.put('', async(req, res)=>{
 module.exports = {
     async router(neo4j_session) {
         try{
-            await neo4j_session.run('create constraint on (n:seed) assert n.`seedid` is unique');
+            await neo4j_session.run('create constraint on (n:seed) assert n.`id` is unique');
         }catch(err) {}
         try{
-            await neo4j_session.run('call db.index.fulltext.createNodeIndex("seed.full_text", ["seed"], ["full_text"])');
+            await neo4j_session.run('call db.index.fulltext.createNodeIndex("seed.fulltext", ["seed"], ["fulltext"])');
         }catch(err) {}
         return router;
     }

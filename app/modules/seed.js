@@ -2,7 +2,7 @@ const axios = require('axios').default;
 
 async function _request({
     method='',
-    service='',
+    service='http://127.0.0.1:6952',
     path='',
     data=null,
 }={}) {
@@ -20,60 +20,17 @@ async function _request({
     });
 }
 
-async function save({
-    id='',
-    service='',
-    data='',
-}={}) {
-    let ts = new Date().getTime()/1000;
-    let object_seed = {
-        meta: {
-            id:id,
-            time: {
-                update: {
-                    timestamp: ts,
-                }
-            }
-        },
-        data: data,
-    };
-
-    return _request({
-        method: 'PUT',
-        service,
-        path: '/seed',
-        data: object_seed,
-    });
-}
-
-function search({
-    service='',
+async function search({
     key='',
     page=1,
     page_size=20,
-    from_ts='',
-    to_ts='',
 }={}) {
     return _request({
         method: 'GET',
-        service,
-        path: `/seed?page=${page}&page_size=${page_size}&key=${encodeURIComponent(key)}&from=${from_ts}&to=${to_ts}`,
-    });
-}
-
-function _delete({
-    service='',
-    id=''
-}={}) {
-    return _request({
-        method: 'delete',
-        service,
-        path: `/seed/${id}`,
+        path: `/seed?page=${page}&page_size=${page_size}&key=${encodeURIComponent(key)}`
     });
 }
 
 module.exports = {
-    save,
     search,
-    delete:_delete,
 };

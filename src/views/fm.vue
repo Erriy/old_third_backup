@@ -2,19 +2,21 @@
     <div>
         <a-input
             placeholder="全文内容搜索，回车后搜索"
-            @pressEnter="load_more"
+            v-model="load.key"
+            @pressEnter="load_more(true)"
         />
         <a-table
             :columns="table.columns"
             :data-source="table.list"
+            :pagination='false'
             @change="table_change"
         />
-        <!-- <scroll-loader
+        <scroll-loader
             :loader-method="load_more"
             :loader-disable="load.loading||load.no_more"
         >
             <div>加载中，请稍后...</div>
-        </scroll-loader> -->
+        </scroll-loader>
     </div>
 </template>
 
@@ -27,6 +29,7 @@ export default {
                 no_more: false,
                 page: 1,
                 page_size: 20,
+                key: '',
             },
             table: {
                 columns: [
@@ -91,27 +94,21 @@ export default {
                 this.load.page = 1;
                 this.load.no_more = false;
             }
-            // fixme 请求错误处理
             this.$api.seed.search({
-                service: this.$common.service,
-                // key: this.load.search.key,
                 page: this.load.page,
                 page_size: this.load.page_size,
-                // from_ts: this.load.search.date_range.from > 0?this.load.search.date_range.from/1000: '',
-                // to_ts: this.load.search.date_range.to > 0?this.seed.search.date_range.to/1000: '',
-            })
-                .then(async (res)=>{
-                    if (0 === res.data.list.length) {
-                        this.load.no_more = true;
-                        return;
-                    }
-                    for(let s of res.data.list) {
-                        this.table.list.push(s);
-                    }
-                    this.table.list.sort((a,b)=>(a.meta.time.update.timestamp>b.meta.time.update.timestamp));
-                    this.load.page += 1;
-                })
-                .finally(()=>this.load.loading=false);
+                key: this.load.key,
+            }).then(async res=>{
+                if (0 === res.data.list.length) {
+                    this.load.no_more = true;
+                    return;
+                }
+                for(let s of res.data.list) {
+                    this.table.list.push(s);
+                }
+                // this.table.list.sort((a,b)=>(a.meta.time.update.timestamp>b.meta.time.update.timestamp));
+                this.load.page += 1;
+            }).finally(()=>{this.load.loading=false;});
         },
     }
 };
