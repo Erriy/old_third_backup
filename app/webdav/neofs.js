@@ -112,16 +112,24 @@ function filesystem()
     };
 
     // 初始化根目录节点
-    obj.neo.run(`merge (:seed{name: "/", type: "webdav.directory", id: '${uuidv1()}'})`).then();
+    obj.neo.run(`
+        merge (s:seed{name: "/", type: "webdav.directory"})
+        on create set s.id='${uuidv1()}'
+    `).then();
 
     r._create = async (path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/)=>{
+
+        let result = await obj.neo.run(`${find_entry_cql(path.toString())} return entry`);
+        if(result.records.length > 0) {
+            return callback(webdav.Errors.ResourceAlreadyExists);
+        }
+
         let name = basename(path.toString());
         let typeinfo = ', type: "webdav.directory"';
         if (!ctx.type.isDirectory) {
             let uri = uuidv1();
             typeinfo = `, type:"webdav.empty", uri: '${uri}'`;
         }
-
         await obj.neo.run(`
             ${find_entry_cql(dirname(path.toString()))}
             create (s:seed{name: $name ${typeinfo}, id: '${uuidv1()}'})-[:in]->(entry)
