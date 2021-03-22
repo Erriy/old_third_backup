@@ -20,7 +20,7 @@ router.get('', async(req, res) => {
 
     let full_text_search = 'match (s:seed)';
     if(key.length > 0) {
-        full_text_search = 'CALL db.index.fulltext.queryNodes("seed.fulltext", "$key") YIELD node as s, score';
+        full_text_search = 'CALL db.index.fulltext.queryNodes("seed.fulltext", $key) YIELD node as s, score';
     }
     if(type.length > 0) {
         full_text_search += ' where s.type in $type ';
@@ -32,7 +32,6 @@ router.get('', async(req, res) => {
         ${full_text_search}
         return distinct s, total order by s.update_ts desc skip ${(page - 1)*page_size} limit ${page_size}
     `;
-    console.log(cql);
     let result = await res.neo.run(cql, {key, type});
 
     let total = 0;
