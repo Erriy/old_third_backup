@@ -10,7 +10,39 @@
             :data-source="table.list"
             :pagination="false"
             @change="table_change"
-        />
+        >
+            <span
+                slot="tag"
+                slot-scope="tag,item"
+            >
+                <a-tag
+                    v-for="t in tag"
+                    :key="t"
+                    closable
+                    @close="delete_tag(t, index)"
+                >
+                    {{ t }}
+                </a-tag>
+                <a-input
+                    v-if="item.create_new_tag"
+                    :ref="item.id"
+                    type="text"
+                    size="small"
+                    :style="{ width: '78px' }"
+                    :value="item.new_tag_data"
+                    @change="(e)=>{item.new_tag_data=e.target.value;}"
+                    @blur="create_tag(item)"
+                    @keyup.enter="create_tag(item)"
+                />
+                <a-tag
+                    v-else
+                    style="background: #fff; borderStyle: dashed;"
+                    @click="show_new_tag_input(item)"
+                >
+                    <a-icon type="plus" />新标签
+                </a-tag>
+            </span>
+        </a-table>
         <scroll-loader
             :loader-method="load_more"
             :loader-disable="load.loading||load.no_more"
@@ -46,11 +78,13 @@ export default {
                 columns: [
                     {
                         title: '名称',
-                        dataIndex: 'name'
+                        dataIndex: 'name',
+                        key: 'name',
                     },
                     {
                         title: '类型',
                         dataIndex: 'type',
+                        key: 'type',
                         filters: [
                             {
                                 text: '文件夹',
@@ -89,10 +123,13 @@ export default {
                     {
                         title: '标签',
                         dataIndex: 'tag',
+                        key: 'tag',
+                        scopedSlots: { customRender: 'tag' },
                     },
                     {
                         title: '备注',
-                        dataIndex: 'note'
+                        dataIndex: 'note',
+                        key: 'note',
                     }
                 ],
                 list: [],
@@ -103,6 +140,25 @@ export default {
         table_change(pagination, filters, sorter) {
             this.load.type = filters.type.join(',');
             this.load_more(true);
+        },
+        show_new_tag_input(item) {
+            item.create_new_tag = true;
+            this.$nextTick(function() {
+                this.$refs[item.id].focus();
+            });
+        },
+        create_tag(item) {
+            item.create_new_tag = false;
+            // todo 添加标签
+            if(item.new_tag_data.length > 0) {
+                item.tag.push(item.new_tag_data);
+            }
+            item.new_tag_data = '';
+        },
+        delete_tag(item, tag, id) {
+            // todo delete tag
+            console.log(item, tag, id);
+            // console.log(item.id, tag);
         },
         load_more(refresh=false) {
             if(this.load.loading) {
@@ -126,6 +182,8 @@ export default {
                 }
                 for(let s of res.data.list) {
                     s.type = type_map[s.type];
+                    s.create_new_tag = false;
+                    s.new_tag_data = '';
                     this.table.list.push(s);
                 }
                 // this.table.list.sort((a,b)=>(a.meta.time.update.timestamp>b.meta.time.update.timestamp));
