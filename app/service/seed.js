@@ -47,6 +47,7 @@ router.get('', async(req, res) => {
                     name: _.properties.name,
                     id: _.properties.id,
                     type: _.properties.type,
+                    tag: _.properties.tag ? _.properties.tag : []
                 };
             })
         }
