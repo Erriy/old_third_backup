@@ -83,7 +83,16 @@ router.put('/:seedid/tag/:tag', async (req, res)=>{
 });
 
 router.delete('/:seedid/tag/:tag', async (req, res)=>{
-    // todo 删除标签
+    let result = await res.neo.run(
+        `
+            match (s:seed{id: $seedid})
+            set s.tag = [t in s.tag where t<>$tag]
+            return s.tag as tag
+        `,
+        {seedid: req.params.seedid, tag: req.params.tag}
+    );
+    let data = result.records.length > 0 ? result.records[0].get('tag') : [];
+    return res.build({data});
 });
 
 module.exports = {
