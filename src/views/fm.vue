@@ -5,12 +5,14 @@
             placeholder="全文内容搜索，回车后搜索"
             @pressEnter="load_more(true)"
         />
+        // todo 根据筛选数据
         <a-table
             :columns="table.columns"
             :data-source="table.list"
             :pagination="false"
             @change="table_change"
         >
+            // todo 点击标签后根据标签查找
             <span
                 slot="tag"
                 slot-scope="tag,item"
