@@ -32,6 +32,28 @@ async function search({
     });
 }
 
+async function add_tag({
+    seedid='',
+    tag='',
+}={}) {
+    return _request({
+        method: 'PUT',
+        path: `/seed/${seedid}/tag/${tag}`,
+    });
+}
+
+async function del_tag({
+    seedid='',
+    tag='',
+}={}) {
+    return _request({
+        method: 'DELETE',
+        path: `/seed/${seedid}/tag/${tag}`,
+    });
+}
+
 module.exports = {
     search,
+    add_tag,
+    del_tag,
 };

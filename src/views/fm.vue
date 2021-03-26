@@ -5,14 +5,14 @@
             placeholder="全文内容搜索，回车后搜索"
             @pressEnter="load_more(true)"
         />
-        // todo 根据筛选数据
+        <!-- todo 根据筛选数据 -->
         <a-table
             :columns="table.columns"
             :data-source="table.list"
             :pagination="false"
             @change="table_change"
         >
-            // todo 点击标签后根据标签查找
+            <!-- todo 点击标签后根据标签查找 -->
             <span
                 slot="tag"
                 slot-scope="tag,item"
@@ -21,7 +21,7 @@
                     v-for="t in tag"
                     :key="t"
                     closable
-                    @close="delete_tag(t, index)"
+                    @close="delete_tag(item, t)"
                 >
                     {{ t }}
                 </a-tag>
@@ -153,14 +153,23 @@ export default {
             item.create_new_tag = false;
             // todo 添加标签
             if(item.new_tag_data.length > 0) {
-                item.tag.push(item.new_tag_data);
+                this.$api.seed.add_tag({
+                    seedid: item.id,
+                    tag: item.new_tag_data
+                }).then(res=>{
+                    item.tag = res.data;
+                });
             }
             item.new_tag_data = '';
         },
-        delete_tag(item, tag, id) {
+        delete_tag(item, tag) {
             // todo delete tag
-            console.log(item, tag, id);
-            // console.log(item.id, tag);
+            this.$api.seed.del_tag({
+                seedid: item.id,
+                tag: tag
+            }).then(res=>{
+                item.tag = res.data;
+            });
         },
         load_more(refresh=false) {
             if(this.load.loading) {
