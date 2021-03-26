@@ -7,6 +7,7 @@ require('express-async-errors');
  * todo 权限控制，用户检查
  */
 
+// 查找节点
 router.get('', async(req, res) => {
     let page = Number(req.query.page) || 1;
     let page_size = Number(req.query.page_size) || 20;
@@ -67,16 +68,19 @@ router.get('', async(req, res) => {
     });
 });
 
+// 删除节点
 router.delete('/:seedid', async(req, res)=>{
     // todo 延迟删除，函数与webdav抽象为同一套
     await res.neo.run('match (s:seed)-[:in*0..]->(n:seed) where n.id=$seedid detach delete s,n', {seedid:req.params.seedid});
     return res.build();
 });
 
+// 创建节点
 router.put('', async(req, res)=>{
     // todo 创建连接
 });
 
+// 创建标签
 router.put('/:seedid/tag/:tag', async (req, res)=>{
     // todo 标签去重
     let result = await res.neo.run(
@@ -96,6 +100,7 @@ router.put('/:seedid/tag/:tag', async (req, res)=>{
     return res.build({data});
 });
 
+// 删除标签
 router.delete('/:seedid/tag/:tag', async (req, res)=>{
     let result = await res.neo.run(
         `
@@ -109,6 +114,12 @@ router.delete('/:seedid/tag/:tag', async (req, res)=>{
     return res.build({data});
 });
 
+// 在所有标签中查找
+router.get('/tag', async (req, res) => {
+    // todo 在标签中查找
+});
+
+// 获取单个节点信息
 router.get('/:seedid', async (req, res) => {
     // todo 获取资源信息
 });
