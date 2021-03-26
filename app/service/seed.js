@@ -4,9 +4,7 @@ require('express-async-errors');
 
 /**
  * 接口设计
- * todo 列表接口，包括查询功能
- * todo 对文件添加标签
- * todo 删除标签连接
+ * todo 权限控制，用户检查
  */
 
 router.get('', async(req, res) => {
@@ -110,6 +108,11 @@ router.delete('/:seedid/tag/:tag', async (req, res)=>{
     let data = result.records.length > 0 ? result.records[0].get('tag') : [];
     return res.build({data});
 });
+
+router.get('/:seedid', async (req, res) => {
+    // todo 获取资源信息
+});
+
 
 module.exports = {
     async router(neo4j_session) {
