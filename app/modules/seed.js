@@ -24,11 +24,12 @@ async function search({
     key='',
     page=1,
     page_size=20,
-    type=''
+    type='',
+    tag='',
 }={}) {
     return _request({
         method: 'GET',
-        path: `/seed?page=${page}&page_size=${page_size}&key=${encodeURIComponent(key)}&type=${type}`
+        path: `/seed?page=${page}&page_size=${page_size}&key=${encodeURIComponent(key)}&type=${type}&tag=${encodeURIComponent(tag)}`
     });
 }
 

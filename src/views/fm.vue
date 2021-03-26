@@ -1,10 +1,31 @@
 <template>
     <div>
-        <a-input
-            v-model="load.key"
-            placeholder="全文内容搜索，回车后搜索"
-            @pressEnter="load_more(true)"
-        />
+        <a-row type="flex">
+            <a-col :flex="2">
+                <a-input
+                    v-model="load.key"
+                    placeholder="全文内容搜索，回车后搜索"
+                    @pressEnter="load_more(true)"
+                />
+            </a-col>
+            <a-col :flex="1">
+                <a-select
+                    placeholder="标签过滤，回车确定"
+                    mode="tags"
+                    style="width: 100%"
+                    :token-separators="[',']"
+                    @change="change_search_tag"
+                >
+                    <!-- todo 保存历史记录 -->
+                    <!-- <a-select-option
+                        v-for="i in 25"
+                        :key="(i + 9).toString(36) + i"
+                    >
+                        {{ (i + 9).toString(36) + i }}
+                    </a-select-option> -->
+                </a-select>
+            </a-col>
+        </a-row>
         <!-- todo 根据标签筛选数据 -->
         <a-table
             :columns="table.columns"
@@ -75,6 +96,7 @@ export default {
                 page_size: 20,
                 key: '',
                 type: '',
+                tag: '',
             },
             table: {
                 columns: [
@@ -139,6 +161,10 @@ export default {
         };
     },
     methods: {
+        change_search_tag(tag_string) {
+            this.load.tag = tag_string;
+            this.load_more(true);
+        },
         table_change(pagination, filters, sorter) {
             this.load.type = filters.type.join(',');
             this.load_more(true);
@@ -185,7 +211,8 @@ export default {
                 page: this.load.page,
                 page_size: this.load.page_size,
                 key: this.load.key,
-                type: this.load.type
+                type: this.load.type,
+                tag: this.load.tag,
             }).then(async res=>{
                 if (0 === res.data.list.length) {
                     this.load.no_more = true;
