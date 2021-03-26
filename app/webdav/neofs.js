@@ -208,8 +208,8 @@ function filesystem()
         }
         let wstream = fs.createWriteStream(filepath);
         wstream.on('finish', async()=>{
-            // todo 修改type字段
-            // todo 提取内容建立到全文索引字段
+            // todo 其他格式文本分析
+            // todo 做成后台异步任务处理
             let fsize = (await fs_stat(filepath)).size;
             let ftype = await file_type.fromFile(filepath);
             let stype = 'webdav.other';
