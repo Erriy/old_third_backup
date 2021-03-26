@@ -12,11 +12,13 @@ const util = require('util');
 const sys_path = require('path');
 const {Readable} = require('stream');
 const {v1:uuidv1} = require('uuid');
+const file_type = require('file-type');
 
 const fs_stat = util.promisify(fs.stat);
 const fs_open = util.promisify(fs.open);
 const fs_close = util.promisify(fs.close);
 const fs_exists = util.promisify(fs.exists);
+const fs_read = util.promisify(fs.read);
 
 let obj = {
     neo: {
@@ -51,6 +53,18 @@ let obj = {
     fpath: null,        // 文件保存路径
     max_text_length: 1024*1024,  // 数据库中保存数据的最大长度限制
 };
+
+// ext 映射为type
+let ext_type_map = {};
+const ext_category = {
+    'webdav.audio': ['mp3', 'ogg', 'ogv', 'spx', 'ogx', 'flac', 'wav',],
+    'webdav.video': ['avi', 'mp4', 'mkv', 'webm', 'mov', 'flv'],
+};
+for(let c of Object.keys(ext_category)) {
+    for(let e of ext_category[c]) {
+        ext_type_map[e] = c;
+    }
+}
 
 function find_entry_cql(path, name='entry') {
     let entrys = [];
@@ -196,9 +210,32 @@ function filesystem()
         wstream.on('finish', async()=>{
             // todo 修改type字段
             // todo 提取内容建立到全文索引字段
-            // await obj.neo.run(`
-            //     ${find_entry_cql(path.toString())} set entry.fulltext=$content
-            // `, {content: '哈哈哈'});
+            let fsize = (await fs_stat(filepath)).size;
+            let ftype = await file_type.fromFile(filepath);
+            let stype = 'webdav.other';
+            let content = '';
+            if(0 === fsize) {
+                stype = 'webdav.empty';
+            }
+            else if (undefined === ftype) {
+                stype = 'webdav.text';
+                // 按照文本内容处理
+                let fd = null;
+                let buffer = Buffer.alloc(128*1024);
+                try{
+                    fd = await fs_open(filepath);
+                    await fs_read(fd, buffer, 0, 128*1024, 0);
+                    content = buffer.toString();
+                }
+                finally{
+                    if(fd) {
+                        await fs_close(fd);
+                    }
+                }
+            }
+            await obj.neo.run(`
+                ${find_entry_cql(path.toString())} set entry.type=$type, entry.fulltext=$content
+            `, {type: stype, content: content});
         });
 
         callback(null, wstream);
