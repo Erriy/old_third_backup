@@ -10,13 +10,14 @@
             </a-col>
             <a-col :flex="1">
                 <a-select
+                    v-model="load.tag_list"
                     placeholder="标签过滤，回车确定"
                     mode="tags"
                     style="width: 100%"
                     :token-separators="[',']"
                     @change="change_search_tag"
                 >
-                    todo 在tag表头里做过滤
+                    <!-- todo 在tag表头里做过滤 -->
                     <!-- todo 保存历史记录 -->
                     <!-- <a-select-option
                         v-for="i in 25"
@@ -43,6 +44,7 @@
                     v-for="t in tag"
                     :key="t"
                     closable
+                    @click="select_tag(t)"
                     @close="delete_tag(item, t)"
                 >
                     {{ t }}
@@ -97,7 +99,7 @@ export default {
                 page_size: 20,
                 key: '',
                 type: '',
-                tag: '',
+                tag_list: [],
             },
             table: {
                 columns: [
@@ -163,8 +165,15 @@ export default {
         };
     },
     methods: {
-        change_search_tag(tag_string) {
-            this.load.tag = tag_string;
+        select_tag(tag) {
+            if(-1 === this.load.tag_list.indexOf(tag)) {
+                console.log(this.load.tag_list);
+                this.load.tag_list.push(tag);
+                this.load_more(true);
+            }
+        },
+        change_search_tag(tag_list) {
+            this.load.tag_list = tag_list;
             this.load_more(true);
         },
         table_change(pagination, filters, sorter) {
@@ -214,7 +223,7 @@ export default {
                 page_size: this.load.page_size,
                 key: this.load.key,
                 type: this.load.type,
-                tag: this.load.tag,
+                tag: this.load.tag_list.join(','),
             }).then(async res=>{
                 if (0 === res.data.list.length) {
                     this.load.no_more = true;
