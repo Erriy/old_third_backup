@@ -16,6 +16,7 @@
                     :token-separators="[',']"
                     @change="change_search_tag"
                 >
+                    todo 在tag表头里做过滤
                     <!-- todo 保存历史记录 -->
                     <!-- <a-select-option
                         v-for="i in 25"
@@ -104,6 +105,7 @@ export default {
                         title: '名称',
                         dataIndex: 'name',
                         key: 'name',
+                        // todo 支持名称过滤
                     },
                     {
                         title: '类型',
