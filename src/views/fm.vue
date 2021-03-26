@@ -190,12 +190,14 @@ export default {
             item.create_new_tag = false;
             // todo 添加标签
             if(item.new_tag_data.length > 0) {
-                this.$api.seed.add_tag({
-                    seedid: item.id,
-                    tag: item.new_tag_data
-                }).then(res=>{
-                    item.tag = res.data;
-                });
+                if(-1===item.tag.indexOf(item.new_tag_data)) {
+                    this.$api.seed.add_tag({
+                        seedid: item.id,
+                        tag: item.new_tag_data
+                    }).then(res=>{
+                        item.tag = res.data;
+                    });
+                }
             }
             item.new_tag_data = '';
         },
