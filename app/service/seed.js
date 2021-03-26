@@ -14,16 +14,31 @@ router.get('', async(req, res) => {
     let page_size = Number(req.query.page_size) || 20;
     let key = req.query.key || '';
     let type = (req.query.type || '').split(',').filter(w=>w.length > 0);
+    let tag = (req.query.tag || '').split(',').filter(w=>w.length > 0);
 
     page = page>0?page:1;
     page_size = page_size>0?page_size:20;
 
     let full_text_search = 'match (s:seed)';
+    // 全文索引过滤
     if(key.length > 0) {
         full_text_search = 'CALL db.index.fulltext.queryNodes("seed.fulltext", $key) YIELD node as s, score';
     }
+    let swhere = [];
+    // 类型过滤
     if(type.length > 0) {
-        full_text_search += ' where s.type in $type ';
+        swhere.push('s.type in $type');
+        // full_text_search += ' where s.type in $type ';
+    }
+    // 标签过滤
+    if(tag.length > 0) {
+        for(let t of tag) {
+            swhere.push(`'${t}' in s.tag`);
+        }
+    }
+    // where条件整合
+    if(swhere.length > 0) {
+        full_text_search += ' where ' + swhere.join(' and ');
     }
 
     let cql = `

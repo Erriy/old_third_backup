@@ -38,7 +38,7 @@ async function add_tag({
 }={}) {
     return _request({
         method: 'PUT',
-        path: `/seed/${seedid}/tag/${tag}`,
+        path: `/seed/${seedid}/tag/${encodeURIComponent(tag)}`,
     });
 }
 
@@ -48,7 +48,7 @@ async function del_tag({
 }={}) {
     return _request({
         method: 'DELETE',
-        path: `/seed/${seedid}/tag/${tag}`,
+        path: `/seed/${seedid}/tag/${encodeURIComponent(tag)}`,
     });
 }
 
