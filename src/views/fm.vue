@@ -35,6 +35,14 @@
             @change="table_change"
         >
             <span
+                slot="name"
+                slot-scope="name,item"
+            >
+                <a @click="open(item)">
+                    {{ name }}
+                </a>
+            </span>
+            <span
                 slot="tag"
                 slot-scope="tag,item"
             >
@@ -105,6 +113,7 @@ export default {
                         title: '名称',
                         dataIndex: 'name',
                         key: 'name',
+                        scopedSlots: { customRender: 'name' },
                         // todo 支持名称过滤
                     },
                     {
@@ -163,6 +172,9 @@ export default {
         };
     },
     methods: {
+        open(item) {
+            console.log(item);
+        },
         select_tag(tag) {
             if(-1 === this.load.tag_list.indexOf(tag)) {
                 console.log(this.load.tag_list);
