@@ -118,8 +118,8 @@ export default {
                     },
                     {
                         title: '类型',
-                        dataIndex: 'type',
-                        key: 'type',
+                        dataIndex: 'show_type',
+                        key: 'show_type',
                         filters: [
                             {
                                 text: '文件夹',
@@ -172,8 +172,14 @@ export default {
         };
     },
     methods: {
-        open(item) {
-            console.log(item);
+        async open(item) {
+            let path = '';
+            let type = '';
+            if(item.type.startsWith('webdav.')) {
+                type = 'webdav';
+                path = (await this.$api.seed.get_path({seedid: item.id})).data.path;
+            }
+            await this.$api.seed.open({type, path});
         },
         select_tag(tag) {
             if(-1 === this.load.tag_list.indexOf(tag)) {
@@ -242,7 +248,7 @@ export default {
                     return;
                 }
                 for(let s of res.data.list) {
-                    s.type = type_map[s.type];
+                    s.show_type = type_map[s.type];
                     s.create_new_tag = false;
                     s.new_tag_data = '';
                     this.table.list.push(s);

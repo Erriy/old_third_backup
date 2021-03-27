@@ -1,4 +1,6 @@
 const axios = require('axios').default;
+const open = require('open');
+const sys_path = require('path');
 
 async function _request({
     method='',
@@ -53,8 +55,31 @@ async function del_tag({
     });
 }
 
+async function get_path({
+    seedid='',
+}={}) {
+    return _request({
+        method: 'GET',
+        path: `/seed/${seedid}/path`
+    });
+}
+
+async function _open({
+    type='',
+    path=''
+}={}) {
+    // todo 路径的跨平台支持
+    // fixme 路径中的变量动态修改
+    if('webdav'===type) {
+        let file = sys_path.join(`/var/run/user/${process.getuid()}/gvfs/dav:host=localhost,port=63389,ssl=false,user=erriy/`, path);
+        await open(file);
+    }
+}
+
 module.exports = {
     search,
     add_tag,
     del_tag,
+    get_path,
+    open: _open,
 };
