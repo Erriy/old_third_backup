@@ -28,14 +28,12 @@
                 </a-select>
             </a-col>
         </a-row>
-        <!-- todo 根据标签筛选数据 -->
         <a-table
             :columns="table.columns"
             :data-source="table.list"
             :pagination="false"
             @change="table_change"
         >
-            <!-- todo 点击标签后根据标签查找 -->
             <span
                 slot="tag"
                 slot-scope="tag,item"
