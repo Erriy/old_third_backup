@@ -27,28 +27,34 @@ function tray_init() {
     obj.tray = new Tray(nativeImage.createFromPath(path.join(__dirname, '../dist/favicon.ico')));
     obj.tray.setContextMenu(Menu.buildFromTemplate([
         {
-            label: '新建窗口',
-            submenu: [
-                {
-                    label: '列表页',
-                    click() {
-                        window.create('/list');
-                    }
-                },
-                {
-                    label: '新信息',
-                    click() {
-                        window.create('/seed');
-                    }
-                },
-                {
-                    label: '粘贴板',
-                    click() {
-                        window.create('/list?paste=true');
-                    }
-                },
-            ]
+            label: '打开主页',
+            click() {
+                window.create('/');
+            }
         },
+        // {
+        //     label: '新建窗口',
+        //     submenu: [
+        //         {
+        //             label: '列表页',
+        //             click() {
+        //                 window.create('/list');
+        //             }
+        //         },
+        //         {
+        //             label: '新信息',
+        //             click() {
+        //                 window.create('/seed');
+        //             }
+        //         },
+        //         {
+        //             label: '粘贴板',
+        //             click() {
+        //                 window.create('/list?paste=true');
+        //             }
+        //         },
+        //     ]
+        // },
         {
             label: '退出',
             click(){
