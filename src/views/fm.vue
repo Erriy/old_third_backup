@@ -119,7 +119,7 @@ export default {
                     {
                         title: '类型',
                         dataIndex: 'show_type',
-                        key: 'show_type',
+                        key: 'type',
                         filters: [
                             {
                                 text: '文件夹',
