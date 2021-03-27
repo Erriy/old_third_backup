@@ -124,6 +124,16 @@ router.get('/:seedid', async (req, res) => {
     // todo 获取资源信息
 });
 
+// 获取节点的webdav路径
+router.get('/:seedid/path', async (req, res) => {
+    let result = await res.neo.run(
+        'match (:seed{id: $seedid})-[:in*0..]->(s) return s.name as name',
+        {seedid: req.params.seedid}
+    );
+    let path = result.records.map(r=>(r.get('name'))).reverse().join('/');
+    return res.build({data: {path: path}});
+});
+
 module.exports = {
     async router(neo4j_session) {
         try{
