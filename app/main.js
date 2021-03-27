@@ -71,15 +71,15 @@ function tray_init() {
 function regist_global_shortcut() {
     // fixme：mac系统上command和super为同一按键，修改默认为option
     // todo 修改根据配置文件进行绑定
-    globalShortcut.register('CommandOrControl+Super+l', () => {
-        window.create('/list');
-    });
-    globalShortcut.register('CommandOrControl+Super+V', () => {
-        window.create('/list?paste=true');
-    });
-    globalShortcut.register('CommandOrControl+Super+n', () => {
-        window.create('/seed');
-    });
+    // globalShortcut.register('CommandOrControl+Super+l', () => {
+    //     window.create('/list');
+    // });
+    // globalShortcut.register('CommandOrControl+Super+V', () => {
+    //     window.create('/list?paste=true');
+    // });
+    // globalShortcut.register('CommandOrControl+Super+n', () => {
+    //     window.create('/seed');
+    // });
 }
 
 if(!app.requestSingleInstanceLock()) {
