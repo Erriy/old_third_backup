@@ -5,7 +5,6 @@ const func = require('../common/func');
 
 /**
  * 公钥控制相关
- * todo 获取公钥
  */
 
 // 上传公钥
