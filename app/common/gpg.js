@@ -60,6 +60,13 @@ async function _import({
     await gpg_call(armored_key, ['--import'/*, '--import-options', 'import-show', '--with-colons'*/]);
 }
 
+async function _export({
+    keyid=null,
+}) {
+    let r = await gpg_call('', ['--armor', '--export', keyid]);
+    return r.toString();
+}
+
 if (typeof require !== 'undefined' && require.main === module) {
     (async ()=>{
         let pbkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -84,15 +91,17 @@ if (typeof require !== 'undefined' && require.main === module) {
         `;
         // let l = await list_secret_key();
         // console.log(await _sign({data:'hello', key: l[0].fingerprint}));
-        await _import({armored_key: pbkey});
+        // await _import({armored_key: pbkey});
+        await _export({keyid: '8F0B08074B6BD30160DCE7C1A3D3149FC9D7CC40'});
     })();
 }
 
 module.exports = {
     list_secret_key,
-    sign:_sign,
+    sign: _sign,
     verify,
     decrypt,
     encrypt,
-    import:_import,
+    import: _import,
+    export: _export,
 };

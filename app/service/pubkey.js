@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const gpg = require('../common/gpg');
+const func = require('../common/func');
 
 /**
  * 公钥控制相关
@@ -8,15 +9,18 @@ const gpg = require('../common/gpg');
  */
 
 // 上传公钥
-router.put('', (req, res)=>{
+router.put('', async (req, res)=>{
     let armored_key = req.body;
-    gpg.import({armored_key});
+    await gpg.import({armored_key});
     return res.build();
 });
 
 // 下载公钥
-router.put('/:keyid', (res, req)=>{
-
+router.get('/:keyid', async (req, res)=>{
+    let keyid = req.params.keyid;
+    func.check_keyid(keyid);
+    let armored_key = await gpg.export({keyid});
+    return res.build({data: armored_key});
 });
 
 module.exports = {
