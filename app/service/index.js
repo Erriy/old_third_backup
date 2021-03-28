@@ -3,6 +3,7 @@ const body_parser = require('body-parser');
 const neo4j_driver = require('neo4j-driver');
 const log = require('electron-log');
 const {router: seed_router} = require('./seed');
+const {router: pubkey_router} = require('./pubkey');
 
 let obj = {
     server: null,
@@ -84,6 +85,7 @@ async function start({
     // 构建路由，路由内部自行建立数据库索引
     let neo4j_session = njdrv.session();
     app.use('/api/seed', await seed_router(neo4j_session));
+    app.use('/api/pubkey', await pubkey_router(neo4j_session));
     neo4j_session.close();
 
     // 错误统一处理
