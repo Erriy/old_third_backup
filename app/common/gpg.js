@@ -23,19 +23,30 @@ async function list_secret_key() {
 
 async function _sign({
     data='',
+    type='detach',
     key='',
 }={}) {
-    let options = ['--detach-sign', '--armor', '--local-user', key];
+    let stype = type == 'detach' ? '--detach-sign': '--clear-sign';
+    let options = [stype, '--armor', '--local-user', key];
     let d = await gpg_call(data, options);
     return d.toString();
 }
 
 async function verify({
     data='',
-    sign='',
+    sign=undefined,
 }={}) {
-    let clearsign_data = `-----BEGIN PGP SIGNED MESSAGE-----\r\nHash: SHA256\r\n\r\n${data}\r\n${sign}`;
-    return (await gpg_verify(clearsign_data, ['--with-fingerprint'])).toString();
+    /**
+     * 验证失败会报异常
+     */
+    let clearsign_data = data;
+    if(sign) {
+        clearsign_data = `-----BEGIN PGP SIGNED MESSAGE-----\r\nHash: SHA256\r\n\r\n${data}\r\n${sign}`;
+    }
+    let r = (await gpg_verify(clearsign_data, ['--with-fingerprint'])).toString();
+    // let time = new Date(/^gpg: Signature made (?<time>.*)$/mg.exec(r).groups.time).getTime();
+    let fpr = /^Primary key fingerprint: (?<fpr>.*)$/mg.exec(r).groups.fpr.replace(/ /g, '');
+    return fpr;
 }
 
 async function encrypt({
@@ -69,30 +80,9 @@ async function _export({
 
 if (typeof require !== 'undefined' && require.main === module) {
     (async ()=>{
-        let pbkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
-        Comment: Hostname:
-        Version: Hockeypuck ~unreleased
-
-        xsBNBEsjYRQBCACuDXJKyP8sDnH8TCHpBgKyuB/SScXJGbPuF8XcQUv0qs4HRjX6
-        kjlD+s6Ju3CJgMFIvwpLqO0wbYvuMHDemamMNa+oT4JNaszjB8OgbkN9jy/JU7hb
-        Fa7GQbhyPousfEJouTHc66t4sXsIcrshnCT1zNTbE44cnq9aQgqct9hJmLmg7+Qh
-        Ioc6TdwpuS0vZVeOP/o/KAO6VcVFrzAJ1Dh6s6zmhoAVpHlqUa4VNUddbwB2ymxh
-        1nwa+073Fs0n67n3Iz1Gyy76h9u6j0Nta5Ax1i8Sbx/uWTPe/JejG7Ydztas6ePK
-        blnvA/nIXUwG8rgCVZudWE8tAYCAamlJ0X5/ABEBAAHNGnRlc3QgcGMgPHRlc3RA
-        cm90aGxpbi5jb20+wsB4BBMBAgAiBQJLI2EUAhsPBgsJCAcDAgYVCAIJCgsEFgID
-        AQIeAQIXgAAKCRCj0xSfydfMQF3/B/49KL6DRY4jhZWTGVwpD1mQmlByQbW7j5rz
-        VfjTGwOH3f//CJRgvCEvRuV3jC/NKRtXoQkP4xE3i+j+Gvi/i4BQlwbvvleONtIo
-        /2Jh0blWpV8u4cLxCmp5YZNyNPjbLiEe8J3aYJeDEcVdfIzFDLRd+hiLiMcEPVrG
-        M7P3mSlN7aNzsX+4Lbni0HcpJ9MGcSo5JAHAvXVPPfvTHNwZJEELYUPXWgBFjfUV
-        yzmCTkyouuPdCETSQAEIweoSCiCt1//zA6f00ZnZyosDawlxYERnIMTP64nDMkSr
-        bkDDoKbaI/T+xcNSgROsvuEm3GkLT2cqscJMLFV8eVoovG3bgDJN
-        =lNYM
-        -----END PGP PUBLIC KEY BLOCK-----
-        `;
-        // let l = await list_secret_key();
-        // console.log(await _sign({data:'hello', key: l[0].fingerprint}));
-        // await _import({armored_key: pbkey});
-        await _export({keyid: '8F0B08074B6BD30160DCE7C1A3D3149FC9D7CC40'});
+        let l = await list_secret_key();
+        let data = await _sign({data:'hello', key: l[0].fingerprint, type: 'detach'});
+        console.log(await verify({data: 'hello', sign: data}));
     })();
 }
 
