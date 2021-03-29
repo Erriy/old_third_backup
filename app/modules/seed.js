@@ -5,7 +5,6 @@ const sys_path = require('path');
 const username = 'DA2C290E40EB67AC8BD4C31364E251FB0BB538A8';
 const password = 'Suv7cg1ehVCVNuwNa8XsW8z4yZ2CVBGLHoxy5PjUMRkFHq3pLywvnoCaUyyDPQBT';
 
-
 async function _request({
     method='',
     service='http://127.0.0.1:6952',
