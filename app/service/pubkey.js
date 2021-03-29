@@ -24,6 +24,10 @@ router.get('/:keyid', async (req, res)=>{
 
 module.exports = {
     async router(neo4j_session) {
+        try {
+            await neo4j_session.run('create constraint on (n:pubkey) assert n.`fingerprint` is unique');
+        }
+        catch(e) {}
         return router;
     }
 };
