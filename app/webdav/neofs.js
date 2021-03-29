@@ -345,15 +345,19 @@ function authentication() {
         return callback(webdav.Errors.UserNotFound);
     };
 
-    um.getUserByNamePassword = (name, password, callback)=>{
-        // todo 在数据库中查询用户名和密码
-        if (name === 'erriy' && password === '123456') {
-            return callback(null, new webdav.SimpleUser('erriy', '123456', false,false));
+    um.getUserByNamePassword = async (name, password, callback)=>{
+        let results = await obj.neo.run(
+            'match (n:pubkey{fingerprint: $fpr, token: $token}) return n.token as token',
+            {fpr: name, token: password}
+        );
+        if(results.records.length > 0) {
+            return callback(null, new webdav.SimpleUser(name, password, false,false));
         }
         return callback(webdav.Errors.UserNotFound);
     };
 
-    return new webdav.HTTPDigestAuthentication(um, 'third webdav service');
+    return new webdav.HTTPBasicAuthentication(um, 'third webdav service');
+    // return new webdav.HTTPDigestAuthentication(um, 'third webdav service');
 }
 
 function cleanup() {
