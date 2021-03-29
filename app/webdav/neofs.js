@@ -223,10 +223,11 @@ function filesystem()
                 stype = 'webdav.text';
                 // 按照文本内容处理
                 let fd = null;
-                let buffer = Buffer.alloc(128*1024);
+                let size = fsize > 128*1024? 128*1024 : fsize;
+                let buffer = Buffer.alloc(size);
                 try{
                     fd = await fs_open(filepath);
-                    await fs_read(fd, buffer, 0, 128*1024, 0);
+                    await fs_read(fd, buffer, 0, size, 0);
                     content = buffer.toString();
                 }
                 finally{
