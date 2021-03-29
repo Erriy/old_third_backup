@@ -4,7 +4,7 @@ const axios = require('axios').default;
 async function _token({refresh=false}={}) {
     // todo 获取服务器地址，keyid
     let path =  `/api/token?refresh=${refresh}&timestamp=${new Date().getTime()/1000}`;
-    let sign = await gpg.sign({data: path, key: 'F3215C06348E28B6455F2AEDEDCF1044A9C06456', type: 'detach'});
+    let sign = await gpg.sign({data: path, key: 'DA2C290E40EB67AC8BD4C31364E251FB0BB538A8', type: 'detach'});
     let resp = await axios({
         method: 'GET',
         url: `http://localhost:6952${path}`,

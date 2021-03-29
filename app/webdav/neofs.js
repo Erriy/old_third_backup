@@ -66,7 +66,7 @@ for(let c of Object.keys(ext_category)) {
     }
 }
 
-function find_entry_cql(path, name='entry') {
+function find_entry_cql(owner, path, name='entry') {
     let entrys = [];
     while(path!='/') {
         entrys.push(basename(path));
@@ -74,7 +74,9 @@ function find_entry_cql(path, name='entry') {
     }
     entrys.push('/');
     entrys = entrys.reverse();
-    return `match ${entrys.map((e, i)=>(`(_n${i}:seed{name:'${e}'})`)).join('<-[:in]-')} with _n${entrys.length-1} as ${name}`;
+    entrys = entrys.map((e, i)=>(`(_n${i}:seed{name:'${e}', owner: '${owner}'})`));
+    entrys[0] = '(_n0:seed{name: "/"})';
+    return `match ${entrys.join('<-[:in]-')} with _n${entrys.length-1} as ${name}`;
 }
 
 // Serializer
@@ -133,7 +135,7 @@ function filesystem()
 
     r._create = async (path /* : Path*/, ctx /* : CreateInfo*/, callback /* : SimpleCallback*/)=>{
 
-        let result = await obj.neo.run(`${find_entry_cql(path.toString())} return entry`);
+        let result = await obj.neo.run(`${find_entry_cql(ctx.context.user.username, path.toString())} return entry`);
         if(result.records.length > 0) {
             return callback(webdav.Errors.ResourceAlreadyExists);
         }
@@ -145,8 +147,8 @@ function filesystem()
             typeinfo = `, type:"webdav.empty", uri: '${uri}'`;
         }
         await obj.neo.run(`
-            ${find_entry_cql(dirname(path.toString()))}
-            create (s:seed{name: $name ${typeinfo}, id: '${uuidv1()}'})-[:in]->(entry)
+            ${find_entry_cql(ctx.context.user.username, dirname(path.toString()))}
+            create (s:seed{name: $name ${typeinfo}, id: '${uuidv1()}', owner: '${ctx.context.user.username}'})-[:in]->(entry)
         `, {name});
         r.resources[path.toString()] = new fs_resource();
         return callback(null);
@@ -155,7 +157,7 @@ function filesystem()
     r._delete = (path /* : Path*/, ctx /* : DeleteInfo*/, callback /* : SimpleCallback*/)=>{
         // todo 延迟删除
         obj.neo.run(`
-            ${find_entry_cql(path.toString())}
+            ${find_entry_cql(ctx.context.user.username, path.toString())}
             match (s:seed)-[:in*0..]->(entry)
             with s, s.uri as uri
             detach delete s
@@ -179,7 +181,7 @@ function filesystem()
 
     r._openReadStream = async (path /* : Path*/, ctx /* : OpenReadStreamInfo*/, callback /* : ReturnCallback<Readable>*/)=>{
         let result = await obj.neo.run(`
-            ${find_entry_cql(path.toString())} return entry.uri as uri
+            ${find_entry_cql(ctx.context.user.username, path.toString())} return entry.uri as uri
         `);
         if (0 === result.records.length ) {
             return callback(webdav.Errors.ResourceNotFound);
@@ -196,7 +198,7 @@ function filesystem()
 
     r._openWriteStream = async (path /* : Path*/, ctx /* : OpenWriteStreamInfo*/, callback /* : ReturnCallback<Writable>*/)=>{
         let result = await obj.neo.run(`
-            ${find_entry_cql(path.toString())} return entry.uri as uri
+            ${find_entry_cql(ctx.context.user.username, path.toString())} return entry.uri as uri
         `);
         if (0 === result.records.length ) {
             return callback(webdav.Errors.ResourceNotFound);
@@ -234,7 +236,7 @@ function filesystem()
                 }
             }
             await obj.neo.run(`
-                ${find_entry_cql(path.toString())} set entry.type=$type, entry.fulltext=$content
+                ${find_entry_cql(ctx.context.user.username, path.toString())} set entry.type=$type, entry.fulltext=$content
             `, {type: stype, content: content});
         });
 
@@ -243,13 +245,13 @@ function filesystem()
 
     r._move = (pathFrom /* : Path*/, pathTo /* : Path*/, ctx /* : MoveInfo*/, callback /* : ReturnCallback<boolean>*/)=>{
         obj.neo.run(`
-            ${find_entry_cql(pathTo.toString())} return entry
+            ${find_entry_cql(ctx.context.user.username, pathTo.toString())} return entry
         `).then(r=>{
             if (0!==r.records.length) {
                 return callback(webdav.Errors.ResourceAlreadyExists, false);
             }
             obj.neo.run(`
-                ${find_entry_cql(pathFrom.toString())} set entry.name=$name
+                ${find_entry_cql(ctx.context.user.username, pathFrom.toString())} set entry.name=$name
             `, {name: basename(pathTo.toString())} ).then(()=>{
                 callback(null, true);
             });
@@ -258,8 +260,8 @@ function filesystem()
 
     r._readDir = (path /* : Path*/, ctx /* : ReadDirInfo*/, callback /* : ReturnCallback<string[] | Path[]>*/)=>{
         obj.neo.run(`
-            ${find_entry_cql(path.toString())}
-            match (n:seed)-[:in]->(entry) return n.name
+            ${find_entry_cql(ctx.context.user.username, path.toString())}
+            match (n:seed{owner: '${ctx.context.user.username}'})-[:in]->(entry) return n.name
         `).then(n=>{
             return callback(null, n.records.map(x=>(x._fields[0])));
         });
@@ -267,7 +269,7 @@ function filesystem()
 
     r._size = async (path /* : Path*/, ctx /* : SizeInfo*/, callback /* : ReturnCallback<number>*/)=>{
         let result = await obj.neo.run(`
-            ${find_entry_cql(path.toString())} return entry.uri as uri
+            ${find_entry_cql(ctx.context.user.username, path.toString())} return entry.uri as uri
         `);
         let size = 0;
         if (result.records.length > 0) {
@@ -285,7 +287,7 @@ function filesystem()
 
     r._type = (path /* : Path*/, ctx /* : TypeInfo*/, callback /* : ReturnCallback<ResourceType>*/)=>{
         obj.neo.run(
-            `${find_entry_cql(path.toString())} return entry.type`
+            `${find_entry_cql(ctx.context.user.username, path.toString())} return entry.type`
         ).then(t=>{
             if (0 === t.records.length) {
                 return callback(webdav.Errors.ResourceNotFound);
