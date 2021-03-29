@@ -38,12 +38,14 @@ async function verify({
 }={}) {
     /**
      * 验证失败会报异常
+     * todo 提取时间
      */
     let clearsign_data = data;
     if(sign) {
         clearsign_data = `-----BEGIN PGP SIGNED MESSAGE-----\r\nHash: SHA256\r\n\r\n${data}\r\n${sign}`;
     }
     let r = (await gpg_verify(clearsign_data, ['--with-fingerprint'])).toString();
+    // 这种提取时间的方式时间差了14个小时
     // let time = new Date(/^gpg: Signature made (?<time>.*)$/mg.exec(r).groups.time).getTime();
     let fpr = /^Primary key fingerprint: (?<fpr>.*)$/mg.exec(r).groups.fpr.replace(/ /g, '');
     return fpr;
