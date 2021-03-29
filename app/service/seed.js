@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('./auth');
 require('express-async-errors');
 
 /**
  * 接口设计
  * todo 权限控制，用户检查
  */
+// 接口要求验证
+router.use(auth.http_basic_auth);
 
 // 查找节点
 router.get('', async(req, res) => {
@@ -14,11 +17,12 @@ router.get('', async(req, res) => {
     let key = req.query.key || '';
     let type = (req.query.type || '').split(',').filter(w=>w.length > 0);
     let tag = (req.query.tag || '').split(',').filter(w=>w.length > 0);
+    let owner = req.user.name;
 
     page = page>0?page:1;
     page_size = page_size>0?page_size:20;
 
-    let full_text_search = 'match (s:seed)';
+    let full_text_search = 'match (s:seed{owner: $owner})';
     // 全文索引过滤
     if(key.length > 0) {
         full_text_search = 'CALL db.index.fulltext.queryNodes("seed.fulltext", $key) YIELD node as s, score';
@@ -46,7 +50,7 @@ router.get('', async(req, res) => {
         ${full_text_search}
         return distinct s, total order by s.update_ts desc skip ${(page - 1)*page_size} limit ${page_size}
     `;
-    let result = await res.neo.run(cql, {key, type});
+    let result = await res.neo.run(cql, {key, type, owner});
 
     let total = 0;
     if(result.records.length > 0) {
