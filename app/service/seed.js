@@ -75,7 +75,7 @@ router.get('', async(req, res) => {
 // 删除节点
 router.delete('/:seedid', async(req, res)=>{
     // todo 延迟删除，函数与webdav抽象为同一套
-    await res.neo.run('match (s:seed)-[:in*0..]->(n:seed) where n.id=$seedid detach delete s,n', {seedid:req.params.seedid});
+    await res.neo.run('match (s:seed)-[:in*0..]->(n:seed) where n.id=$seedid and n.owner=$owner detach delete s,n', {seedid:req.params.seedid, owner:req.user.name});
     return res.build();
 });
 
@@ -89,7 +89,7 @@ router.put('/:seedid/tag/:tag', async (req, res)=>{
     // todo 标签去重
     let result = await res.neo.run(
         `
-            match (s:seed{id:$seedid})
+            match (s:seed{id:$seedid, owner: $owner})
             call {
                 with s with s where exists(s.tag) return s.tag as old_tags
                 union
@@ -98,7 +98,7 @@ router.put('/:seedid/tag/:tag', async (req, res)=>{
             set s.tag = old_tags + $tag
             return s.tag as tag
         `,
-        {seedid: req.params.seedid, tag: req.params.tag}
+        {seedid: req.params.seedid, tag: req.params.tag, owner: req.user.name}
     );
     let data = result.records.length > 0 ? result.records[0].get('tag') : [];
     return res.build({data});
@@ -108,11 +108,11 @@ router.put('/:seedid/tag/:tag', async (req, res)=>{
 router.delete('/:seedid/tag/:tag', async (req, res)=>{
     let result = await res.neo.run(
         `
-            match (s:seed{id: $seedid})
+            match (s:seed{id: $seedid, owner: $owner})
             set s.tag = [t in s.tag where t<>$tag]
             return s.tag as tag
         `,
-        {seedid: req.params.seedid, tag: req.params.tag}
+        {seedid: req.params.seedid, tag: req.params.tag, owner: req.user.name}
     );
     let data = result.records.length > 0 ? result.records[0].get('tag') : [];
     return res.build({data});
@@ -131,8 +131,8 @@ router.get('/:seedid', async (req, res) => {
 // 获取节点的webdav路径
 router.get('/:seedid/path', async (req, res) => {
     let result = await res.neo.run(
-        'match (:seed{id: $seedid})-[:in*0..]->(s) return s.name as name',
-        {seedid: req.params.seedid}
+        'match (:seed{id: $seedid, owner: $owner})-[:in*0..]->(s) return s.name as name',
+        {seedid: req.params.seedid, owner: req.user.name}
     );
     let path = result.records.map(r=>(r.get('name'))).reverse().join('/');
     return res.build({data: {path: path}});

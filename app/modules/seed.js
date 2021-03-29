@@ -2,6 +2,10 @@ const axios = require('axios').default;
 const open = require('open');
 const sys_path = require('path');
 
+const username = 'DA2C290E40EB67AC8BD4C31364E251FB0BB538A8';
+const password = 'Suv7cg1ehVCVNuwNa8XsW8z4yZ2CVBGLHoxy5PjUMRkFHq3pLywvnoCaUyyDPQBT';
+
+
 async function _request({
     method='',
     service='http://127.0.0.1:6952',
@@ -16,7 +20,12 @@ async function _request({
             method: method,
             url: url,
             headers: headers,
-            data: data
+            data: data,
+            // fixme 动态修改用户名密码
+            auth: {
+                username,
+                password
+            }
         }).then(r=>resolve(r.data))
             .catch(e=>reject(e.response?e.response.data.message:e.message));
     });
@@ -71,7 +80,7 @@ async function _open({
     // todo 路径的跨平台支持
     // fixme 路径中的变量动态修改
     if('webdav'===type) {
-        let file = sys_path.join(`/var/run/user/${process.getuid()}/gvfs/dav:host=localhost,port=63389,ssl=false,user=erriy/`, path);
+        let file = sys_path.join(`/var/run/user/${process.getuid()}/gvfs/dav:host=localhost,port=63389,ssl=false,user=${username}/`, path);
         await open(file);
     }
 }
