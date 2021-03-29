@@ -9,8 +9,7 @@ const func = require('../common/func');
 
 // 上传公钥
 router.put('', async (req, res)=>{
-    let armored_key = req.body;
-    await gpg.import({armored_key});
+    await gpg.import({armored_key: req.body.pubkey});
     return res.build();
 });
 
