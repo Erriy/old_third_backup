@@ -335,9 +335,12 @@ function authentication() {
     const um = new webdav.SimpleUserManager();
 
     um.getUserByName = async (name, callback)=>{
-        // todo 在数据库中查询用户名
-        if (name === 'erriy') {
-            return callback(null, new webdav.SimpleUser('erriy', '123456', false,false));
+        let results = await obj.neo.run(
+            'match (n:pubkey{fingerprint: $fpr}) return n.token as token',
+            {fpr: name}
+        );
+        if(results.records.length > 0) {
+            return callback(null, new webdav.SimpleUser(name, results.records[0].get('token'), false,false));
         }
         return callback(webdav.Errors.UserNotFound);
     };
