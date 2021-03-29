@@ -4,6 +4,7 @@ const neo4j_driver = require('neo4j-driver');
 const log = require('electron-log');
 const {router: seed_router} = require('./seed');
 const {router: pubkey_router} = require('./pubkey');
+const {router: token_router} = require('./token');
 
 let obj = {
     server: null,
@@ -86,6 +87,7 @@ async function start({
     let neo4j_session = njdrv.session();
     app.use('/api/seed', await seed_router(neo4j_session));
     app.use('/api/pubkey', await pubkey_router(neo4j_session));
+    app.use('/api/token', await token_router(neo4j_session));
     neo4j_session.close();
 
     // 错误统一处理
