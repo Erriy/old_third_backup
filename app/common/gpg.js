@@ -38,7 +38,7 @@ async function verify({
 }={}) {
     /**
      * 验证失败会报异常
-     * todo 提取时间
+     * todo 提取签名时间（utc）
      */
     let clearsign_data = data;
     if(sign) {
