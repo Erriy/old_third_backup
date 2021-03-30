@@ -10,6 +10,7 @@ const schedule = require('node-schedule');
 const api = require('./api');
 const window = require('./modules/window');
 const update = require('./modules/update');
+const webdav = require('./modules/webdav');
 
 let obj = {
     tray: null,
@@ -66,6 +67,7 @@ else {
         regist_global_shortcut();
         auto_check_update();
         tray_init();
+        await webdav.mount();
         log.info(`app初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
     });
     // 窗口全部关闭也不退出

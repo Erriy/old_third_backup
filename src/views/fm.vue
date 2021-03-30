@@ -174,12 +174,10 @@ export default {
     methods: {
         async open(item) {
             let path = '';
-            let type = '';
             if(item.type.startsWith('webdav.')) {
-                type = 'webdav';
                 path = (await this.$api.seed.get_path({seedid: item.id})).data.path;
+                await this.$api.webdav.open({path});
             }
-            await this.$api.seed.open({type, path});
         },
         select_tag(tag) {
             if(-1 === this.load.tag_list.indexOf(tag)) {

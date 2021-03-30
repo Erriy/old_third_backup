@@ -5,22 +5,16 @@ const urljoin = require('url-join');
 const gpg = require('./gpg');
 const runtime = require('./runtime');
 
-let obj = {
-    token: null
-};
-
 async function _request({
     method='',
     path='',
     data=null,
 }={}) {
-    if (!obj.token) {
-        obj.token = await gpg.token();
-    }
     let headers = {'Content-Type': 'application/json'};
     method = method.toUpperCase();
     let url = urljoin(await runtime.service(), 'api', path);
     let username = await runtime.fingerprint();
+    let password = await gpg.token();
     return new Promise((resolve, reject)=>{
         axios({
             method: method,
@@ -29,7 +23,7 @@ async function _request({
             data: data,
             auth: {
                 username,
-                password: obj.token
+                password
             }
         }).then(r=>resolve(r.data))
             .catch(e=>reject(e.response?e.response.data.message:e.message));
