@@ -1,16 +1,17 @@
 const gpg = require('../common/gpg');
 const axios = require('axios').default;
+const runtime = require('./runtime');
+const urljoin = require('url-join');
 
 async function _token({
     refresh=false,
-    keyid='DA2C290E40EB67AC8BD4C31364E251FB0BB538A8', // fixme 修改为空
+    keyid=null,
 }={}) {
-    // fixme 获取服务器地址，keyid
     let path =  `/api/token?refresh=${refresh}&timestamp=${new Date().getTime()/1000}`;
-    let sign = await gpg.sign({data: path, key: keyid, type: 'detach'});
+    let sign = await gpg.sign({data: path, key: keyid || await runtime.fingerprint(), type: 'detach'});
     let resp = await axios({
         method: 'GET',
-        url: `http://localhost:6952${path}`,
+        url: urljoin(await runtime.service(), path),
         headers: {
             sign: JSON.stringify(sign)
         }
@@ -19,13 +20,12 @@ async function _token({
 }
 
 async function upload_pubkey({
-    keyid='DA2C290E40EB67AC8BD4C31364E251FB0BB538A8', // fixme 修改为空
+    keyid=null,
 }={}) {
-    // fixme 获取服务器地址，keyid
-    let pubkey = await gpg.export({keyid});
+    let pubkey = await gpg.export({keyid: keyid||await runtime.fingerprint()});
     let resp = await axios({
         method: 'PUT',
-        url: 'http://localhost:6952/api/pubkey',
+        url: `${await runtime.service()}/api/pubkey`,
         data: {pubkey}
     });
     return resp.data;

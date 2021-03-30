@@ -24,9 +24,9 @@ async function fingerprint() {
     });
 }
 
-function service() {
+async function service() {
     return _get_config('service', ()=>{
-        return 'http://localhost:6952/api';
+        return 'http://localhost:6952/';
     });
 }
 
