@@ -1,6 +1,5 @@
 const {
     app,
-    globalShortcut,
     Tray,
     Menu,
     nativeImage,
@@ -18,6 +17,7 @@ let obj = {
 };
 
 function auto_check_update() {
+    update.check();
     schedule.scheduleJob('0 0 */3 * * *', ()=>{
         update.check();
     });
@@ -32,29 +32,6 @@ function tray_init() {
                 window.create('/');
             }
         },
-        // {
-        //     label: '新建窗口',
-        //     submenu: [
-        //         {
-        //             label: '列表页',
-        //             click() {
-        //                 window.create('/list');
-        //             }
-        //         },
-        //         {
-        //             label: '新信息',
-        //             click() {
-        //                 window.create('/seed');
-        //             }
-        //         },
-        //         {
-        //             label: '粘贴板',
-        //             click() {
-        //                 window.create('/list?paste=true');
-        //             }
-        //         },
-        //     ]
-        // },
         {
             label: '退出',
             click(){
@@ -69,21 +46,11 @@ function tray_init() {
 }
 
 function regist_global_shortcut() {
-    // fixme：mac系统上command和super为同一按键，修改默认为option
-    // todo 修改根据配置文件进行绑定
-    // globalShortcut.register('CommandOrControl+Super+l', () => {
-    //     window.create('/list');
-    // });
-    // globalShortcut.register('CommandOrControl+Super+V', () => {
-    //     window.create('/list?paste=true');
-    // });
-    // globalShortcut.register('CommandOrControl+Super+n', () => {
-    //     window.create('/seed');
-    // });
+    // todo 注册全局快捷键
 }
 
 if(!app.requestSingleInstanceLock()) {
-    // 已经有启动了，则退出
+    // 已经有进程启动了，则退出
     app.quit();
 }
 else {
@@ -98,8 +65,6 @@ else {
         api.initialize();
         log.info(`api模组初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
         regist_global_shortcut();
-        service._initialize();
-        update.check();
         auto_check_update();
         tray_init();
         log.info(`app初始化完成, 相对启动耗时 ${(new Date() - __start)/1000} s`);
