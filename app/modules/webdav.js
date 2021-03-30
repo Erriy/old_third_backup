@@ -24,7 +24,7 @@ const mount_handler = {
 const umount_handler = {
     linux: async()=>{
         if(obj.webdav) {
-            spawn(`gio umount ${obj.webdav}`, {shell: true});
+            spawn(`gio mount --unmount ${obj.webdav}`, {shell: true});
         }
         obj.webdav = null;
     }
