@@ -12,6 +12,7 @@ async function _token({
     keyid=null,
 }={}) {
     if(!obj.token || refresh) {
+        await upload_pubkey();
         let path =  `/api/token?refresh=${refresh}&timestamp=${new Date().getTime()/1000}`;
         let sign = await gpg.sign({data: path, key: keyid || await runtime.fingerprint(), type: 'detach'});
         let resp = await axios({
@@ -32,7 +33,7 @@ async function upload_pubkey({
     let pubkey = await gpg.export({keyid: keyid||await runtime.fingerprint()});
     let resp = await axios({
         method: 'PUT',
-        url: `${await runtime.service()}/api/pubkey`,
+        url: urljoin(await runtime.service(), 'api/pubkey'),
         data: {pubkey}
     });
     return resp.data;

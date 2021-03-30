@@ -3,8 +3,8 @@ const {spawn} = require('child_process');
 const runtime = require('./runtime');
 const os = require('os');
 const gpg = require('./gpg');
-const urljoin = require('url-join');
 const open = require('open');
+const sys_path = require('path');
 
 let obj = {
     webdav: null
@@ -32,7 +32,11 @@ const umount_handler = {
 
 const open_handler =  {
     linux: async({path=null}={})=>{
-        await open(urljoin(obj.webdav, path));
+        let service = await runtime.service();
+        let user = await runtime.fingerprint();
+        let sopt = url.parse(service);
+        path = sys_path.join(`/var/run/user/${process.getuid()}/gvfs/dav:host=${sopt.hostname},port=63389,ssl=false,user=${user}/`, path);
+        await open(path);
     }
 };
 
