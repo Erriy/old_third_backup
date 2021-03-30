@@ -18,6 +18,16 @@ const mount_handler = {
         obj.webdav = `dav://${user}@${sopt.hostname}:63389`;
         let command = `gio mount ${obj.webdav} <<< ${await gpg.token()}`;
         spawn(command, {shell: true});
+    },
+    win32: async()=>{
+        // fixme 动态生成挂载卷名
+        let service = await runtime.service();
+        let user = await runtime.fingerprint();
+        let sopt = url.parse(service);
+        obj.webdav = 'Z:';
+
+        let command = `net use ${obj.webdav} http://${sopt.hostname}:63389 ${await gpg.token()} /user:${user}`;
+        spawn(command, {shell: true});
     }
 };
 
@@ -37,6 +47,9 @@ const open_handler =  {
         let sopt = url.parse(service);
         path = sys_path.join(`/var/run/user/${process.getuid()}/gvfs/dav:host=${sopt.hostname},port=63389,ssl=false,user=${user}/`, path);
         await open(path);
+    },
+    win32: async({path=null}={})=>{
+        await open(sys_path.join(obj.webdav, path));
     }
 };
 
