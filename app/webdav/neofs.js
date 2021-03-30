@@ -359,8 +359,8 @@ function authentication() {
         return callback(webdav.Errors.UserNotFound);
     };
 
-    return new webdav.HTTPBasicAuthentication(um, 'third webdav service');
-    // return new webdav.HTTPDigestAuthentication(um, 'third webdav service');
+    // return new webdav.HTTPBasicAuthentication(um, 'third webdav service');
+    return new webdav.HTTPDigestAuthentication(um, 'third webdav service');
 }
 
 function cleanup() {

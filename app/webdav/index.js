@@ -41,6 +41,7 @@ if (typeof require !== 'undefined' && require.main === module) {
     fs.mkdirSync(fpath, {recursive: true});
     start({
         host:'0.0.0.0',
+        port: 63389,
         uri: 'neo4j://127.0.0.1:7687',
         password:  'ub1JOnQcuV^rfBsr5%Ek',
         fpath
