@@ -10,7 +10,6 @@ const schedule = require('node-schedule');
 const api = require('./api');
 const window = require('./modules/window');
 const update = require('./modules/update');
-const service = require('./modules/service');
 
 let obj = {
     tray: null,
